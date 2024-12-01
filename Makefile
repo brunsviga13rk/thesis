@@ -2,6 +2,7 @@
 include .env
 
 build:
+	git submodule update --init --recursive
 	typst compile src/main.typ \
     	--root . \
     	--font-path template/fonts \
