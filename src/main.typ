@@ -43,11 +43,11 @@
     abstract: none,
     preface: none,
     keywords: ( "IT", "Web", "Simulation", "Brunsviga" ),
-    bibliography: none /* bibliography("refs.bib") */,
-    glossary: none,
+    bibliography: bibliography("refs.bib"),
+    glossary: yaml("acros.yml"),
     appendices: none),
   style: (
     header: (
       logo-image: ""))))
 
-= Introduction
+#include "intro.typ"
