@@ -50,4 +50,4 @@
     header: (
       logo-image: ""))))
 
-= Introduction
+#include "brunsviga.typ"
