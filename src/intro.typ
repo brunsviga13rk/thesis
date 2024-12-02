@@ -55,20 +55,48 @@ machine was called, became widely successful in selling. While the machine at
 its core relies on the same drum-shaped gear as Leibniz machine, it exceeds his
 original design in terms of complexity. The machine gained widespread use in the
 insurance world allowing for reduced error in computation by avoiding erroneous
-calculation done by hand. The commercialization of Thomas's calculator in 1852
-started the calculating machine industry in the world.
+calculation done by hand. In fact, as supervisor of two insurance companies,
+Charles had significant staff costs due to the amount computations required to
+run the company. He invented the machine in hopes of reducing these expenses by
+enhancing human labor with mechanical calculators.
+The commercialization of Thomas's calculator in 1852
+started the calculating machine industry in the world and dominated said over
+the span of nearly fifty years.
 @Rhodes_2020
+#cite(<Faulstich_1992>, supplement: "p. 2")
 
 #figure(
-    caption: [Arithmometer from between 1880 and 1900 @ArithmometerAuction],
-    image("res/arithmometer.png", width: 70mm))
+    caption: [Arithmometer built between 1880 and 1900 @ArithmometerAuction],
+    image("res/arithmometer.png", width: 100mm))
 
-In the early 1870s a swedish engineer by the name of Willgodt Theophil Odhner
-started to invent calculating machines. He planed to improve family fortunes
-by selling said machines. By 1877 foruteen machines were already built.
-In contrast to the drum-shaped gear of the Arithmometer invented by Charles
-Xavier Thomas, Odhner used a wheel spicked with retractable pins to represent a
-digit. These amount of pins portruding out of the pinwheel were adjustable
-through a lever. Combined with a counter these pinwheels were capable of
-addition.
+// Willgodt Theophil Odhner
+Between the years 1868 and 1869 the swedish engineer Willgodt Theophil Odhner
+emigrated to russia where he was hired by Ludvig Nobel to work at an arms
+factory. His responsibility volved around fixing the Arithmometers invented by
+Charles Xavier Thomas half a century ago.
+In the early 1870s Odhner planed to improve family fortunes
+by selling said machines. For this purpose he partnered with Karl Königsberger,
+a german merchant. Karl filed multiple patents in germany in the year 1878.
+The patent for Odhners was eventually bought by the german sewing
+machine firm @GNC. in 1892. Through the modernisation of
+administration and office buildings at the end of the 19th century due to a
+growing population and economy the need for more
+efficient calculations through the use of machines was rising in germany.
+Already in july of 1892 engineer and head of @GNC Franz Trinks presented the
+machine built using the patents bought from Königsberger as "Brunsviga".
 @Smithsonian_Odhner-Arithmometer
+#cite(<Faulstich_1992>, supplement: "pp. 3-4")
+
+#figure(
+    caption: [Drawing of the "Brunsviga" from a journal of german engineers. #cite(<Faulstich_1992>, supplement: "p. 5")],
+    image("res/brunsviga.png", width: 90mm))
+
+@GNC specialized in making the "Brunsviga" a cheap and simple to produce in an
+industrialized manner allowing for mass production. The machine was redesigned
+for easier use by less qualified people. Alongside an aggressive marketing
+campaign the company managed to sell 500 pieces within a year.
+The company continued to grow and developed nine models of its "Brunsviga"
+calculator. Even during world war 1 production was not put on hold.
+In 1921 @GNC was restructured into a shares company and by 1927 the firm was
+renamed to "Brunsviga Maschinen Werke, Grimme, Natalis & Co. AG"
+#cite(<Faulstich_1992>, supplement: "pp. ")
