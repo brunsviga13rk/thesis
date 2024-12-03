@@ -53,4 +53,4 @@
   ),
 ))
 
-= Introduction
+#include "intro.typ"
