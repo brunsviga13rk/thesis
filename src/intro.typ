@@ -20,8 +20,9 @@ about 13 cm in diameter.
 #cite(<Ulmann_2022>, supplement: "pp. 9-10")
 
 #figure(
-    caption: [Fragment of the Antikytheras front. @Flessa_2017],
-    image("res/antikythera.png", width: 50mm))
+  caption: [Fragment of the Antikytheras front. @Flessa_2017],
+  image("res/antikythera.png", width: 50mm),
+)
 <fig:antikythera>
 
 // Blaise Pascal
@@ -66,8 +67,9 @@ the span of nearly fifty years.
 #cite(<Faulstich_1992>, supplement: "p. 2")
 
 #figure(
-    caption: [Arithmometer built between 1880 and 1900 @ArithmometerAuction],
-    image("res/arithmometer.png", width: 100mm))
+  caption: [Arithmometer built between 1880 and 1900 @ArithmometerAuction],
+  image("res/arithmometer.png", width: 100mm),
+)
 
 // Willgodt Theophil Odhner
 Between the years 1868 and 1869 the swedish engineer Willgodt Theophil Odhner
@@ -88,8 +90,9 @@ machine built using the patents bought from Königsberger as "Brunsviga".
 #cite(<Faulstich_1992>, supplement: "pp. 3-4")
 
 #figure(
-    caption: [Drawing of the "Brunsviga" from a journal of german engineers. #cite(<Faulstich_1992>, supplement: "p. 5")],
-    image("res/brunsviga.png", width: 90mm))
+  caption: [Drawing of the "Brunsviga" from a journal of german engineers. #cite(<Faulstich_1992>, supplement: "p. 5")],
+  image("res/brunsviga.png", width: 90mm),
+)
 
 @GNC specialized in making the "Brunsviga" a cheap and simple to produce in an
 industrialized manner allowing for mass production. The machine was redesigned
