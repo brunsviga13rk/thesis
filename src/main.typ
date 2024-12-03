@@ -51,7 +51,6 @@
       logo-image: "",
     ),
   ),
-  style: (header: (logo-image: "")),
 ))
 
 = Introduction
