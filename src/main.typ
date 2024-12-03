@@ -43,9 +43,13 @@
     abstract: none,
     preface: none,
     keywords: ("IT", "Web", "Simulation", "Brunsviga"),
-    bibliography: none, /* bibliography("refs.bib") */
-    glossary: none,
-    appendices: none,
+    bibliography: bibliography("refs.bib"),
+    glossary: yaml("acros.yml"),
+  ),
+  style: (
+    header: (
+      logo-image: "",
+    ),
   ),
   style: (header: (logo-image: "")),
 ))
