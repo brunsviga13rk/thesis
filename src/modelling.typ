@@ -81,7 +81,7 @@ preferred software as it is well established, free and open-source and is freely
 available on multiple platforms.
 The basic modelling process of polygonal modelling in Blender involves several
 steps. The Brunsviga 13 RK is split into different parts. Each part is a
-physically solid component.These components are treated for modelling as
+physically solid component. These components are treated for modelling as
 independent objects ignoring mechanical joints at first. The decision process
 for start and end of each component is strictly based on the disassembly of the
 Brunsviga 13 RK. Each piece taken off as a hole during disassembly is modelled
@@ -95,7 +95,7 @@ divided into two distinct processes for convex prisms and cylindrical shapes.
 
 In front of the background reference image poly lines are traced around
 the components edges by extrusion. Rounded corners are first traced as sharp
-turns and afterward smoothed out by manually by use of the bevel tool.
+turns and afterward smoothed out by manually by use of the bevel tool. @BlenderManual_Bevel
 The two resulting ends of the poly line are joined together at a point of
 low curvature, preferably a straight line. It is important to only modify the
 points of the polyline in the x- and y-axis in order achieve a "flat" polyline
@@ -119,3 +119,37 @@ segment which face downwards are selected and extruded downwards, forming the
 metal extrusion.
 
 // TODO: show example of crank modelling
+
+== Modelling tricks
+
+=== Repetition
+
+== Mesh finish
+
+The models created through the previous steps are low poly by nature thus having
+sharp edges or hard transitions. In order to fix such issues previous
+procedures made use of the bevel operator by manually rounding edges of faces.
+This method has its limitations in cases where edge vertices are connected by
+a multitude of faces. In such cases the bevel that can be applied by the operator
+is severely limited by the distance the bevel can apply without overlapping.
+A workaround to this problem is to move edges of faces further apart stretching
+specific parts of a model. Such transformation is undesirable in most cases.
+Additionally, all previous operations have taken place in edit mode meaning
+each operation applies changes to the vertices of the object directly.
+This behavior is referred to as "destructive" as it "destroys" the previous
+geometry by permanently altering it. Modifiers offer a non-destructive alternative
+to permanent geometry altercations. They perform a specific operation on the mesh
+without changing the geometry of the object rather applies the changes only visually
+for rendering. This way the geometry can be changed and operations are applied
+automatically in post. @BlenderManual_Modifier
+
+=== Catmull-Clark subdivision surface
+
+In order to smooth an object in its entirety and retaining the geometry for
+fine-tuning later on a subdivision surface modifier is used. This modifier
+splits each face of the model into smaller faces and generated additional
+vertices at position based on the average of surrounding vertices thus smoothing
+the resulting geometry. The described method can be applied incrementally in
+several iterations to smooth out a surface event further. @Cheng_2008
+
+=== Decimate
