@@ -122,10 +122,6 @@ metal extrusion.
 
 == Modelling tricks
 
-=== Repetition
-
-== Mesh finish
-
 The models created through the previous steps are low poly by nature thus having
 sharp edges or hard transitions. In order to fix such issues previous
 procedures made use of the bevel operator by manually rounding edges of faces.
@@ -143,13 +139,24 @@ without changing the geometry of the object rather applies the changes only visu
 for rendering. This way the geometry can be changed and operations are applied
 automatically in post. @BlenderManual_Modifier
 
+=== Repetition
+
+In order to reduce the effort of having to model the same objects multiple
+times or copying a single instance by hand multiple times in cases such as the
+rotors of sprocket wheels, the array modifier is made use of.
+This modifier is applied to a single instance of an object to be repeated
+multiple times alongside a linear axis in homogenous distances. This technique
+is primarily used to create the rotors of all sprocket wheels.
+
 === Catmull-Clark subdivision surface
 
-In order to smooth an object in its entirety and retaining the geometry for
-fine-tuning later on a subdivision surface modifier is used. This modifier
-splits each face of the model into smaller faces and generated additional
-vertices at position based on the average of surrounding vertices thus smoothing
+In order to smooth an object in its entirety and retaining the original geometry
+for fine-tuning later, a subdivision surface modifier is used. @BlenderManual_Subdiv
+This modifier splits each face of the model into smaller faces and generates additional
+vertices at position based on the average of neighboring vertices thus smoothing
 the resulting geometry. The described method can be applied incrementally in
 several iterations to smooth out a surface event further. @Cheng_2008
-
-=== Decimate
+Sharp edges can be created by creating extra edges alongside the edge to be
+sharpened. By closing the distance between the additional edge and the target
+edge the rounding of the edge created by the subdivision surface becomes
+thinner, resulting in a sharper looking edge.
