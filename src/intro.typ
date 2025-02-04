@@ -1,3 +1,5 @@
+// LTeX: language=en-US
+
 #import "requirements.typ": *
 
 = Mechanical calculators
@@ -9,7 +11,7 @@ the merchant ship which carried silver and bronze coins, was a special
 mechanical device. The device, named after today's name of the nearby island of
 Antikythera, was an astronomical calculator able to approximate the position of
 celestial bodies such as the Sun and the then known 5 planets of our solar
-system. Additionally the machine served as calendar and could be used to
+system. Additionally, the machine served as calendar and could be used to
 describe solar and lunar eclipse cycles. This gear-based device is the oldest
 known analog computer to date. Unfortunately, only a third of the original
 Antikythera has survived and what is left is split over 82 fragments.
@@ -31,23 +33,23 @@ several hundreds of years.
 It would be about a thousand years before European watchmakers were able to
 produce mechanical machines of similar complexity.
 Major development in automating computational tasks
-can be attributed to several reasons. In 1642 the french mathematician Blaise
+can be attributed to several reasons. In 1642 the French mathematician Blaise
 Pascal invented a mechanical calculator at the age of 18, in order to help his
 father with tax calculations. His machine is able of addition and subtraction
 alike. The machine made use of base ten and was able to automatically carry
 the overflows of one digit to the next.
-Due to cost of production Pascal's invention was never mass produced.
+Due to cost of production Pascal's invention was never mass-produced.
 @Cartwright_2024
 // Leibniz
-Inspired by Blaise's "Pascaline" the german mathematician Gottfried Wilhelm von
+Inspired by Blaise's "Pascaline" the German mathematician Gottfried Wilhelm von
 Leibniz build his first calculator known today as "step reckoner".
 This calculator is known recognized as the first "true" four function
 calculator capable of addition, subtraction, multiplication and division.
 Leibniz used drum-shaped gears in his machine which would prove to be very
 influential in the design of later mechanical calculators. Unfortunately Leibniz
-failed to built a fully functional machine within his lifetime. Despite that
+failed to build a fully functional machine within his lifetime. Despite that
 several replicas of his machine find their way into exhibitions about the
-history of compute and it is believed that Leibniz was well ahead of his time.
+history of compute, and it is believed that Leibniz was well ahead of his time.
 @Morar_2014
 // Arithmometer
 The first commercially available machine calculator was
@@ -72,19 +74,19 @@ the span of nearly fifty years.
 )
 
 // Willgodt Theophil Odhner
-Between the years 1868 and 1869 the swedish engineer Willgodt Theophil Odhner
-emigrated to russia where he was hired by Ludvig Nobel to work at an arms
+Between the years 1868 and 1869 the Swedish engineer Willgodt Theophil Odhner
+immigrated to Russia where he was hired by Ludvig Nobel to work at an arms
 factory. His responsibility volved around fixing the Arithmometers invented by
 Charles Xavier Thomas half a century ago.
 In the early 1870s Odhner planed to improve family fortunes
 by selling said machines. For this purpose he partnered with Karl Königsberger,
-a german merchant. Karl filed multiple patents in germany in the year 1878.
-The patent for Odhners was eventually bought by the german sewing
-machine firm @GNC. in 1892. Through the modernisation of
+a German merchant. Karl filed multiple patents in Germany in the year 1878.
+The patent for Odhners was eventually bought by the German sewing
+machine firm @GNC. in 1892. Through the modernization of
 administration and office buildings at the end of the 19th century due to a
 growing population and economy the need for more
-efficient calculations through the use of machines was rising in germany.
-Already in july of 1892 engineer and head of @GNC Franz Trinks presented the
+efficient calculations through the use of machines was rising in Germany.
+Already in July 1892 engineer and head of @GNC Franz Trinks presented the
 machine built using the patents bought from Königsberger as "Brunsviga".
 @Smithsonian_Odhner-Arithmometer
 #cite(<Faulstich_1992>, supplement: "pp. 3-4")
@@ -99,7 +101,7 @@ industrialized manner allowing for mass production. The machine was redesigned
 for easier use by less qualified people. Alongside an aggressive marketing
 campaign the company managed to sell 500 pieces within a year.
 The company continued to grow and developed nine models of its "Brunsviga"
-calculator. Even during world war 1 production was not put on hold.
+calculator. Even during World War 1 production was not put on hold.
 In 1921 @GNC was restructured into a shares company and by 1927 the firm was
 renamed to "Brunsviga Maschinen Werke, Grimme, Natalis & Co. AG"
 #cite(<Faulstich_1992>, supplement: "pp. ")
