@@ -4,3 +4,12 @@ BC:
 GNC:
     short: GNC
     long: Grimmem, Natalis & Co.
+CDN:
+    short: CDN
+    long: Content Delivery Network
+HTML:
+    short: HTML
+    long: HyperText Markup Language
+CSS:
+    short: CSS
+    long: Cascaded StyleSheet

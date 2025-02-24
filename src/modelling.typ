@@ -2,7 +2,7 @@
 
 #import "requirements.typ": *
 
-= Digital twin
+= Digital twin <section:digital_twin>
 
 At the core of this entire project is the simulation of a real-world physical
 object. Mechanical machinery is best understood when viewed through animations
