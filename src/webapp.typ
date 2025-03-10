@@ -66,4 +66,18 @@ The world of the web is one of the most diverse landscapes in software with a
 wide variety of frameworks, libraries and languages.
 The foundation of web applications is built upon @HTML, Javascript and @CSS.
 @HTML describes the scaffolding of a website by telling the web browser about
-individual components @mdn_HTML.
+individual components @mdn_HTML. Through @CSS a webpage's components are styled
+and animated. Interactive logic through buttons, events or timers is achieved most
+commonly though Javascript, a dynamically typed programming language that runs
+in most modern browsers. With these building blocks the described application
+could be built. However, the direct usage of @HTML in conjunction with
+Javascript is cumbersome for larger and more compliacted projects such as this
+one. Additional resources must either be included locally by storing them
+in the repository or loading them on the client side from a third party @CDN.
+The lather option is not applicable since the project is supposed to be
+offline ready. Including dependency sources directly inside the repository
+is not preferable either as versioning is tedious and ambiguous at best.
+In order to simplify dependency management and allow for quick creation
+of complex user interfaces the project won't directly rely on the primitive
+base stack of technologies mentioned above but rather the following compilation
+of tools and frameworks:
