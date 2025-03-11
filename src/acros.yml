@@ -13,3 +13,30 @@ HTML:
 CSS:
     short: CSS
     long: Cascaded StyleSheet
+NPM:
+    short: NPM
+    long: Node Package Manager
+JSX:
+    short: JSX
+    long: JavaScript eXtensible markup language
+ESM:
+    short: ESM
+    long: ECMAScript Module
+ECMA:
+    short: ECMA
+    long: European Computer Manufacturers Association
+DOM:
+    short: DOM
+    long: Document Object Model
+MUI:
+    short: MUI
+    long: Material User Interface
+3D:
+    short: 3D
+    long: 3 Dimensional
+WebGL:
+    short: WebGL
+    long: Web Graphics Library
+OpenGLES2:
+    short: OpenGL ES 2.0
+    long: Open Graphics Library Embedded Systems 2.0
