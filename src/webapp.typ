@@ -217,19 +217,19 @@ of tools and frameworks described more in-depth in the following chapters:
         inset: (top: 0.5em, bottom: 0.15em, right: 0.5em)),
     [
         Since an interactive visualization of the machine is to be part of the
-        project capabilities for @3D rendering are required. Preferrably by
+        project capabilities for @3D rendering are required. Preferably by
         using native hardware based acceleration through a graphics library.
         For the projects web based architecture native graphics libraries such as
         OpenGL or Vulkan fall short as they cannot be used. Modern day web browsers
         generally implement @WebGL. @WebGL is a wrapper around @OpenGLES2
-        implementing low level functions for rendering lines, triangels and making
+        implementing low level functions for rendering lines, triangles and making
         use of shader pipelines @mdn_WebGL. The use of @WebGL requires at least
-        an @HTML 5 compatible browser @OpenGLES2Reference_2025.
+        a @HTML 5 compatible browser @OpenGLES2Reference_2025.
         Three.js, as a library, uses @WebGL in order provide higher level functions
         to draw entire meshes of triangles, create perspective cameras, physically
-        based materials and lightning @Three_2025. Using Three allows to
-        render a physically based model of the machine without having to invest
-        time and effort into developing said mechanism in a half baked manner due
+        based materials and lightning @Three_2025. Using Three allows+
+        rendering a physically based model of the machine without having to invest
+        time and effort into developing said mechanism in a half-baked manner due
         to time constraints.
     ]
 )
