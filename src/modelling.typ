@@ -44,6 +44,128 @@ used to visually trace lines and approximate proportions.
 See appendix for a table of measurements taken from the real world machine.
 // TODO: add table of measurements
 
+== Optimization of reference images
+
+As can be seen on the leftmost image in @figure:reference-image-enhancement,
+the raw images taken by camera as reference are rather poor in quality.
+The image quality suffers from several factors. First of is the lightning.
+Due to the lack of intense but soft indirect illumination obvious shadows were
+cast from side. Those could have been avoided by letting the lights shine from
+behind the camera. However, this does result in intense reflection in the glossy
+metallic parts of the machine. Having soft penumbra shadows is the lesser evil
+in this case. Better image quality can be achieved in post-processing by following
+a straight forward pipeline.
+
+=== Noise and color enhancements
+
+The first optimization is to get rid of all the redundant
+space around the machine. For this purpose the original image (first from the left)
+is cropped to the minimum size where everything of the machine is still visible
+(second from the left).
+
+#figure(
+    box(grid(rows: 1, columns: (1fr, 1fr, 1fr, 1fr),
+            image("res/original.jpg", height: 80pt),
+            image("res/cropped.jpg", height: 80pt),
+            image("res/masked.jpg", height: 80pt),
+            image("res/color_correction.jpg", height: 80pt)),
+        inset: (bottom: 12pt)),
+    caption: "Enhancement steps of a reference image.") <figure:reference-image-enhancement>
+
+The background wall of the environment adds no value to the actual machine in question
+and is to be regarded as unnecessary noise. In order to remove the background
+and retain only the machine the machines outline is traced as a selection. This
+selection mask is then inverted selecting every pixel but those contributing to
+the machine. The selected pixels are then replaced with a solid white color
+(second image from the right). Additionally, areas of low dark lightness can
+be brightened up to reveal otherwise hidden detail.
+
+=== Perspective correction
+
+Another point of concern is perspective distortion. Digital cameras see, much
+like humans, only in perspective meaning objects farther away appear smaller
+and parallel lines become skewed. Even when taking a picture perfectly orthogonal
+to the machine, parts near the edges of the image fall victim to distortion.
+In some cases this distortion can be corrected manually. @picture:perspective-correction
+shows an example where the red handle (on the right side) is not viewed from
+a perfectly orthogonal angle thus resulting a skewed perspective revealing sides
+of the object that should ideally be occluded.
+
+#figure(
+    box(
+        image("res/perspective_correction.jpg", width: 100%),
+        inset: (bottom: 12pt)),
+    caption: "Example of perspective correction for a lever handle.") <picture:perspective-correction>
+
+AS can be seen on the left side, this can be fixed by moving the face of the handle
+facing the camera face forward slightly down. This results in holes in the image
+where the face occluded the metallic lever. These can be filled up by either
+manually copying and blending from known and symmetrical parts of the image or
+through the use "smart patch" tools commonly found in software like Photoshop,
+Krita or Gimp. While editing the reference images a combination of both tools
+were found to strike a good balance between high accuracy and quick editing.
+Using "smart patch" tools for areas with low discrepancy Gaussian-like noise
+not containing sharp edges is limiting the amount of manual copy and past work
+by good deal. Areas of high contrast of sharp edges however require manual
+intervention in most cases, as "smart patching" tools often rely on a combination
+of blending together parts of the surroundings resulting in a blurry mess of
+inconsistent patches.
+
+=== Removal of defects
+
+The machine acquired for this project is multiple decades old and has been used
+fair while. This results in defects from regular touching, scratches or
+in extreme cases by parts rubbing the paint from each other. Two examples
+of defects are shown in @picture:decal-correction on the left side.
+
+#figure(
+    image("res/decal_correction.jpg", width: 65%),
+    caption: "Two examples of digital damage removal.") <picture:decal-correction>
+
+In the top left image the continuous usage of one of the levers resulted in it being
+bent towards the hull of the machine, scratching its surface each time it is moved.
+In order to remove these defects from the image a method similar to the one
+used above can be used. By copying and blending parts of the image where an intact
+surface is still present, the defects can be over painted with negligible
+artifacts persisting. These artifacts mostly manifest themselves as very low
+frequency noise over the patched up defects. Some of the patched areas might
+appear blurry which is due to the blending operation taking place. This
+blurry mess can be reduced by reducing the smoothed out border of the brush
+being used to achieve the blending operation. Another possible solution would
+be to add Gaussian noise on top of blurry areas to recreate digital image
+artifacts at high frequency. This is not considered necessary as the removal
+of artifacts only serves the purpose of having a more concise image of reference
+with less distracting special elements.
+
+=== Shadow elimination
+
+Another distraction are shadows and highlights. These can be removed or at
+least softened by applying the same tricks as previously. However, as can
+be seen in @picture:shadow-elimination soft shadows make a fairly large part
+of the image. Removing them from the image will result in much more obvious
+low frequency noise as the over painted area is much larger than previously.
+
+#figure(
+    box(
+        image("res/deshade.jpg", width: 100%),
+        inset: (bottom: 12pt)),
+    caption: "Example of shadow removal.") <picture:shadow-elimination>
+
+After the removal of the shadows (right image) the lever is put much more
+to the foreground making its contours more clear. Shadows and highlight are
+not removed from edges were they help to outline the geometry. In such cases
+having detailed shading is of advantage as rounded corners look are clearly
+different from sharp corners or flat surfaces. Shading due to shiny metal surfaces
+remains untouched as this proves to be too difficult to generate decent results.
+Since metals have little to no diffuse components all can be seen are tinted
+reflections. Extracting the base tint of metallic surface is too difficult and
+unviable for this project as the dark reflection of the environment is sufficient
+in distinguishing between the rough diffuse finish of the hull and bare metallic
+geometry. A brighter background when tacking the photographs might still have
+yielded better results as the reflections would have been brighter as a consequence.
+This increased brightness might have also helped to reduce the contrast between
+rougher areas of the metal which are a result of scratches and oxidization.
+
 == Modelling and representation
 
 After covering decent data of reference a technique for modelling the digital twin
@@ -105,7 +227,13 @@ base of the prism. By selection of the edges of the base surface
 the prism walls are generated by extruding the edges alongside the direction
 where the depth of the object increases orthogonal to the base surface.
 
-// TODO: show example of hull modelling
+#figure(
+    image("res/polymodel_convex_prism.png", width: 80%),
+    caption: "Polymodelling of the outer hull of the machine.") <picture:convex-prism-modelling>
+
+@picture:convex-prism-modelling shows the low poly model
+of the outer hull of the machine after extrusion. The orange colored face is one
+of two bases of the prism base shape.
 
 === Cylindrical shapes
 
@@ -156,6 +284,11 @@ This modifier splits each face of the model into smaller faces and generates add
 vertices at position based on the average of neighboring vertices thus smoothing
 the resulting geometry. The described method can be applied incrementally in
 several iterations to smooth out a surface event further. @Cheng_2008
+
+#figure(
+    image("res/subdiv.png", width: 80%),
+    caption: [Example of converging subdivisions on a polygon mesh @Subdiv_Icon.]) <picture:subdiv>
+
 Sharp edges can be created by creating extra edges alongside the edge to be
 sharpened. By closing the distance between the additional edge and the target
 edge the rounding of the edge created by the subdivision surface becomes

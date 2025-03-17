@@ -227,7 +227,7 @@ of tools and frameworks described more in-depth in the following chapters:
         a @HTML 5 compatible browser @OpenGLES2Reference_2025.
         Three.js, as a library, uses @WebGL in order provide higher level functions
         to draw entire meshes of triangles, create perspective cameras, physically
-        based materials and lightning @Three_2025. Using Three allows+
+        based materials and lightning @Three_2025. Using Three allows
         rendering a physically based model of the machine without having to invest
         time and effort into developing said mechanism in a half-baked manner due
         to time constraints.
