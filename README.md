@@ -1,4 +1,27 @@
-# Emulation of the decadic calculating machine Brunsviga 13 RK
+<!-- LTeX: language=en-US -->
+
+<img alt="banner" src="./assets/banner.svg" width="100%"/>
+
+<div align="center">
+    <h2>
+        Thesis about emulating the Brunsviga 13 RK
+    </h2>
+</div>
+
+<div align="center">
+  <p>
+      Emulation of the decadic calculating machine Brunsviga 13 RK <br>
+      paper as part of the T3100 exam at the Cooperative State University Baden Württemberg.
+  </p>
+</div>
+
+<div align="center">
+    <img src="https://img.shields.io/badge/CC%20BY--SA%204.0-green?style=for-the-badge&label=LICENSE">
+    <img src="https://img.shields.io/badge/typst-239DAD.svg?style=for-the-badge&logo=typst&logoColor=white">
+    <img src="https://img.shields.io/badge/latex-%23008080.svg?style=for-the-badge&logo=latex&logoColor=white">
+</div>
+
+<br>
 
 Source of the research paper written at the cooperative
 state university Baden-Württemberg for the course informationtechnology
@@ -45,3 +68,16 @@ file. It contains configuration options for:
 | TYPST_FILE_PATH  | string | 44124_emulation-of-the-brunsviga-13-rk |
 | TYPST_FILE_TYPE  | string | pdf                                    |
 | TYPST_MAIN       | string | src/main.typ                           |
+
+## Bibtex reference
+
+```
+@misc{Brunsviga13rkVogelMüller2025,
+  title       = "Emulation of the decadic calculating machine Brunsviga 13 RK",
+  author      = "Sven Vogel, Felix L. Müller",
+  institution = "Cooperative State University Baden Württemberg",
+  address     = "Baden-Württemberg, Germany",
+  year        = 2025,
+  month       = april
+}
+```
