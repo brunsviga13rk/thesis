@@ -42,7 +42,6 @@
     kind: "T3100",
     // translated version of abstract, only used in case language is not english
     summary: none,
-    abstract: include "abstract.typ",
     preface: none,
     keywords: ("IT", "Web", "Simulation", "Brunsviga"),
     bibliography: bibliography("refs.bib"),
