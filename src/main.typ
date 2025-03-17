@@ -22,15 +22,15 @@
       name: "Sven Vogel",
       course: "TINF22IT2",
       company: none,
-      contact: none,
+      contact: "s222468@student.dhbw-mannheim.de",
       matriculation-number: 1191225,
     ),
     (
       name: "Felix Lothar Müller",
       course: "TINF22IT2",
       company: none,
-      contact: none,
-      matriculation-number: 0,
+      contact: "s221978@student.dhbw-mannheim.de",
+      matriculation-number: 9276615,
     ),
   ),
   // information about thesis
@@ -42,7 +42,7 @@
     kind: "T3100",
     // translated version of abstract, only used in case language is not english
     summary: none,
-    abstract: none,
+    abstract: include("abstract.typ"),
     preface: none,
     keywords: ("IT", "Web", "Simulation", "Brunsviga"),
     bibliography: bibliography("refs.bib"),
