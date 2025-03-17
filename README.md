@@ -72,7 +72,7 @@ file. It contains configuration options for:
 ## Bibtex reference
 
 ```
-@techreport{Brunsviga13rkVogelMüller2025,
+@misc{Brunsviga13rkVogelMüller2025,
   title       = "Emulation of the decadic calculating machine Brunsviga 13 RK",
   author      = "Sven Vogel, Felix L. Müller",
   institution = "Cooperative State University Baden Württemberg",
