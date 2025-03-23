@@ -314,6 +314,10 @@ thinner, resulting in a sharper looking edge.
 Until now, the model produced by the previous chapter has no actual color information
 associated to it, thus it rendered with the default material which is likely a
 single solid color. Not very realistic. This can be improved upon by texturing.
+For that purpose this chapter deals with the process of creating photo realistic
+Materials for the polygon model. Afterward, textures
+of each of the materials major properties will be extracted to individual images
+enabling portable and detailed shading for the final model.
 
 === Texture mapping
 
