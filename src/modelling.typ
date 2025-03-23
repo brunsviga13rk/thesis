@@ -306,3 +306,173 @@ Sharp edges can be created by creating extra edges alongside the edge to be
 sharpened. By closing the distance between the additional edge and the target
 edge the rounding of the edge created by the subdivision surface becomes
 thinner, resulting in a sharper looking edge.
+
+== Texturing
+
+Until now, the model produced by the previous chapter has no actual color information
+associated to it, thus it rendered with the default material which is likely a
+single solid color. Not very realistic. This can be improved upon by texturing.
+For that purpose this chapter deals with the process of creating photo realistic
+Materials for the polygon model. Afterward, textures
+of each of the materials major properties will be extracted to individual images
+enabling portable and detailed shading for the final model.
+
+=== Texture mapping
+
+Texturing is the process of mapping a two-dimensional image (texture) onto the
+surface an object (mostly polygon meshes) by transforming the three-dimensional
+coordinates of the mesh to the two-dimensional texture space through a
+UV map also referred to as UV-mapping @Radivojevic_2025. A common visualization
+of this process is by unfolding the faces of cube along several seams to a flat
+surface like in @figure:uvcube.
+
+#figure(
+    image("res/uvcube.png", width: 60%),
+    caption: [Unfolding a unit cubes faces to a flat plane.]
+) <figure:uvcube>
+
+UV-maps associates a texture coordinate $(u, v)$ with every vertex of a mesh,
+generally as a dedicated attribute. When rendering the mesh, the interpolated
+texture coordinate of the currently processed triangle is used to fetch an image's
+texel an output its color. General goals for a decent UV-map involves reducing
+the stretch that occurs when projecting a curved surface into the flat texture
+space. Additionally, a UV-coordinate may not overflow a textures coordinate space
+which is limited on each of its two axis to the interval $[0,1]$. This is not
+a technical constraint as most texture sampling procedures can either clamp,
+extend or repeat the texture when overflowing coordinates. For the purpose
+of mapping an entire objects surface onto a single texture without any overflow,
+such is here, the space has to be packed tightly in order to minimize waste of
+space. Usage of texture real estate is especially important since the texture
+that is mapped onto has a finite resolution. Mapped faces that are smaller than
+a pixel of the raster image mapped onto, the face will only have a single color.
+In order to avoid this, all faces should take up the most amount of space without
+reducing all others to an unreasonable size. Such ratio cannot be expressed easily
+in a deterministic manner for each and all surfaces. UV-mapping is always a tradeoff
+between stretched textures, wasted texture pixels and low texture resolution per
+face. The Brunsviga Model mostly suffers from the latter. This is due to the high
+complexity of the model making unwrapping a time-consuming trial-and-error process.
+Additionally, the high surface area of the model, due to its many moving and mechanical
+parts, makes the UV-map consume a lot of the texture space. Stretching is not
+much of a problem as simple prisms shapes can be UV-mapped without great issues.
+The estimated texture stretch per face can be seen in @figure:uvmap.
+"Stretch" refers to the difference between the UV space and the world space @BlenderManual_UV.
+By assuming a mesh being represented by triangle strips the aerial stretch can
+be computed by the difference in the normalized edge lengths (1). $v_i$ is the
+i-th vertex in the vertex attribute array of mesh $v$. A vertex is assumed here
+to be a vector in Euclidean space for both the world space mesh ($v_"base"$) and
+the projected unwrapped mesh ($v_"unwrapped"$).
+
+$
+    "length"(v) = norm((abs(v_0 - v_1), abs(v_i-1 - v_i), dots, abs(v_n-1 - v_n) )^T) \
+    "stretch"(v_("unwrapped"), v_("base")) = abs("length"(v_("base")) - "length"(v_("unwrapped")))
+$
+
+The angular stretch is more tricky to calculate. A simplified solution might be to
+define the angular stretch as the maximum difference of all the angles between
+each edge of the area. An example equation to achieve this is given in (2).
+
+$
+    "angle"(v, i) = cos^(-1)( frac((v_i - v_(i+1)) dot (v_(i+1 )- v_(i+2)), abs(v_i - v_(i+1)) abs(v_(i+1) - v_(i+2))  ) ) \
+    "stretch"(v_"unwrapped", v_"base") = max ["angle"(v_"unwrapped", i) - "angle"(v_"base", i)]; forall i in [0,n-2]
+$
+
+The maximum stretch (rendered as red) would in this case amount to a maximum
+angle difference of 180°.
+However, the actual implementation would need to handle non-convex polygons with
+any amount of vertices and order.
+Pixels in between edges and vertices on the UV-map interpolate linearly between
+the stretch values of each vertex or edge. This may be achieved in this sample
+case through barycentric coordinates.
+The given equations do however provide a decent
+sample implementation for computing stretching.
+
+#figure(
+    box(inset: (bottom: 0.5em),
+        grid(columns: (1fr, 1fr, 7em),
+            image("res/uv-angular-stretch.png", height: 11em),
+            image("res/uv-arial-stretch.png", height: 11em),
+            image("res/scala.svg", height: 11em))
+    ),
+    caption: [UV-map of the Brunsviga model with estimated angle and area stretch.]
+) <figure:uvmap>
+
+As can be seen in @figure:uvmap, the current implementation of the UV-map has low angular stretch
+per face (left image). However, the area stretch is quite high. This means, that
+the UV-map more accurately represents the angles of the mesh rather than the area
+of each face. The surface is stretched on purpose since this allows the projected
+area to make high usage of the textures pixels. Some of the objects faces,
+especially those having digits printed onto them, suffer from blurry results as
+the unwrapping process makes the area to small of digits to be rendered by
+enough pixels in order to look sharp. This is circumvented by individually
+deciding for the unwrapping method for troubled areas. This manual process
+however leads to a waste of space as packing faces by hand is not nearly as
+efficient as doing so automatically. Due to time constraints this UV-map
+is considered to be an acceptable result. Shortcomings in the UV-map can be
+counteracted on by increasing texture resolution. Initially a texture resolution
+$1024 times 1024$ (1k) was aimed at. After reconsidering due to the immense amount
+of surface area the texture has to cover the resolution for the image texture
+has been increased to $4096 times 4096$ (4k) and has even been tested at
+$8192 times 8192$ (8k). As stated in later chapters a size of 4k proves to be
+favorable due to size and performance constraints.
+
+=== Procedural materials
+
+=== Baking
+
+#figure(
+    box(inset: (bottom: 0.5em), {
+        grid(
+            columns: (1fr, 1fr, 1fr, 1fr),
+            row-gutter: 1em,
+            image("res/diffuse.png", height: 3.25cm),
+            image("res/metallic.png", height: 3.25cm),
+            image("res/roughness.png", height: 3.25cm),
+            image("res/normal.png", height: 3.25cm),
+            "Diffuse",
+            "Metallic",
+            "Roughness",
+            "Tangent normal"
+        )
+    }),
+  caption: [Baked textures for major material properties.],
+) <picture:baked-textures>
+
+=== Indirect light
+
+#figure(
+  image("res/shadow_baking.png", width: 50%),
+  caption: [Baked shadow remains in place when moving the casting mesh.],
+) <picture:shadow-baking>
+
+= Mesh optimization
+
+== Polygon reduction
+
+#figure(
+  image("res/overdraw.png", width: 75%),
+  caption: [Visualization of polygon overdraw.],
+) <picture:overdraw>
+
+
+== Texture compression
+
+#figure(
+    box(inset: (bottom: 0.15em), {
+        image("res/webp_compression.png", width: 100%)
+        move(dy: -0.5cm, {grid(
+            columns: (1fr, 1fr, 1fr, 1fr, 1fr),
+        "lossless",
+        "90%",
+        "75%",
+        "50%",
+        "10%"
+      )})
+    }),
+  caption: [Compression loss of webp format at varying levels.],
+) <picture:compression-error>
+
+
+#figure(
+  image("res/compression_ratio.svg", width: 100%),
+  caption: [File size reduction by compression quality.],
+) <picture:compression-size>

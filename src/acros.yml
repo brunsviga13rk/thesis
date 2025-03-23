@@ -40,3 +40,7 @@ WebGL:
 OpenGLES2:
     short: OpenGL ES 2.0
     long: Open Graphics Library Embedded Systems 2.0
+UV:
+    short: UV
+    long: UV
+    desc: Refers to the X "U" and Y "V" coordinate of a texture in texel space.
