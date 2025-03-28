@@ -43,7 +43,7 @@
     // translated version of abstract, only used in case language is not english
     summary: none,
     preface: none,
-    keywords: ("IT", "Web", "Simulation", "Brunsviga"),
+    keywords: ("IT", "Web", "Simulation", "Brunsviga", "Computer Graphics", "3D", "texturing"),
     bibliography: bibliography("refs.bib"),
     glossary: yaml("acros.yml"),
   ),

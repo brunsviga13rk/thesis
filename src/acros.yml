@@ -44,3 +44,21 @@ UV:
     short: UV
     long: UV
     desc: Refers to the X "U" and Y "V" coordinate of a texture in texel space.
+PBR:
+    short: PBR
+    long: Physically Based Rendering
+glTF:
+    short: glTF
+    long: Graphics Library Transmission Format
+BDF:
+    short: BDF
+    long: Bidirectional Distribution Function
+BSDF:
+    short: BSDF
+    long: Bidirectional Scattering Distribution Function
+BRDF:
+    short: BRDF
+    long: Bidirectional Reflectance Distribution Function
+BTDF:
+    short: BTDF
+    long: Bidirectional Transmittance Distribution Function

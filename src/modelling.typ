@@ -204,7 +204,7 @@ Polygonal modelling refers to the process of approximating a model with a
 composition of polygons which are eventually split down into triangles for
 ease of rendering.
 
-== Polygonal modelling
+== Polygonal modelling <section:modelling>
 
 Due to the wide-spread use of rasterization pipelines, which
 are primarily designed for triangle meshes, polygonal modelling is the choice
@@ -312,10 +312,6 @@ thinner, resulting in a sharper looking edge.
 Until now, the model produced by the previous chapter has no actual color information
 associated to it, thus it rendered with the default material which is likely a
 single solid color. Not very realistic. This can be improved upon by texturing.
-For that purpose this chapter deals with the process of creating photo realistic
-Materials for the polygon model. Afterward, textures
-of each of the materials major properties will be extracted to individual images
-enabling portable and detailed shading for the final model.
 
 === Texture mapping
 
@@ -415,7 +411,131 @@ has been increased to $4096 times 4096$ (4k) and has even been tested at
 $8192 times 8192$ (8k). As stated in later chapters a size of 4k proves to be
 favorable due to size and performance constraints.
 
-=== Procedural materials
+== Shading <section:shading>
+
+@PBR refers to techniques using statistical models grounded in physical principles
+in order to add realism to computer generated imagery @Moneimne2025. Materials
+define how a scene's lights interact with objects and determine pixel color
+for the viewing camera. Basic physically based material properties can be derived
+from the famous rendering equation (@equation:rendering-equation) described by Kajiya
+in 1986 @Kajiya1986.
+
+$
+    I(x, x') = g(x, x') [
+        epsilon(x, x')
+        + integral_S rho(x, x', x'') I(x', x'')
+        delta x''
+    ]
+$ <equation:rendering-equation>
+
+This equation models the light intensity passing from a point $x'$ to $x$.
+The first factor of the product $g(x, x')$ is a "geometric" term representing
+the occlusion of two points. A result of $0$ equating of a mutual occlusion
+of both points. In case both points can see each other the term resolves to
+$frac(1, r^2)$ where $r$ is the Euclidean norm of the difference between $x$
+and $x'$. The geometric term masks the total intensity of light computed
+by the second factor. The total intensity is computed by the sum of the emittance
+term $epsilon(x, x')$ giving the emitted light between $x$ and $x'$. Onto the
+emittance term is added the total amount of light reached at a surface point $x'$.
+The addend is the integral of the incoming intensity over a hemisphere $S$
+of a point $x'$ (@figure:rendering-equation) @Kajiya1986.
+
+#figure(
+    box(inset: (bottom: 0.5cm), image("res/rendering equation.svg", width: 35%)),
+  caption: [Model of incoming intesity for a surface patch.],
+) <figure:rendering-equation>
+
+The incoming intensity is scaled by the scattering term $rho(x, x', x'')$.
+Its purpose is to express the scattering of light from surface patch at $x'$ and
+equates to the cosine between the surface normal and the direction of the
+sampled point on the hemisphere. #cite(<PBR_2023>, supplement: "sec. 5.5.1")
+For example, the scattering term for a diffuse
+surface scales down incoming light significantly compared to the non-existing
+scattering of a perfect reflection @Kajiya1986.
+Ideally the integral samples all points on the hemisphere. In practice techniques
+such as biased path tracing rely on Monte Carlo methods to sample a sub set
+of the hemisphere and further optimizations such as importance sampling.
+
+=== Bidirectional distribution functions
+
+Various materials interact differently with incoming light.
+This behavior not explicitly described by the rendering equation
+(which assumes sampling points $x, x', x''$ to be given) is modeled by encoding the path a ray
+of light takes when interacting with a surface through a @BDF. @BDF is the generalized
+from of both the @BRDF and @BTDF. The @BRDF defines interaction of diffusely reflective
+dielectric materials such as wood or stone.
+The @BRDF allows rays to bounce from the surface to potentially any direction covered
+by the hemisphere over the surface patch.
+In contrast, the @BTDF models
+transmissive materials such as glass by refracting incoming rays of light
+through the object.
+#cite(<PBR_2023>, supplement: "sec. 5.6.1")
+
+#figure(
+    box(inset: (bottom: 0.5cm), image("res/bsdf.png", width: 40%)),
+  caption: [Visual guide to the bidirectional scattering distribution function @Jurohi2006.],
+) <figure:bsdf>
+
+More advanced materials making use of additional interactions such as subsurface scattering
+for semi transmissive surfaces such as the human skin are generalized by the @BSDF
+#cite(<PBR_2023>, supplement: "sec. 5.6.2") #cite(<PBR_2023>, supplement: "sec. 9.1").
+These distribution functions in conjunction with the rendering equation form
+the base for physically based rendering. Realistic materials make use of a combination
+of all the distribution functions defined by the @BSDF. Commonly these
+distribution functions are combined by sampling either one depending on a
+per distribution function probability given by either a constant or through
+the use of a texture mapped onto a surface. For real-time rendering avoiding
+probabilistic sampling models the outcome of different distribution functions
+may be blended together #cite(<PBR_2023>, supplement: "sec. 9.3.2").
+By combining distribution functions common properties observed in the real world
+can be recreated with the addition of absorption coefficients in order to tint
+light after interaction. Common properties used by rendering formats include:
+albedo (tinted diffuse scattering), metallic (tinted reflections without any
+diffuse contribution) and roughness @Moneimne2025.
+
+=== Material properties
+
+A physically based material is commonly defined by a set of properties describing
+the interaction between light and the surface (see deduction in @section:shading).
+The software Blender, as used for modelling (see @section:modelling), defines
+physically based material through the Principled @BSDF Node #cite(<BlenderBook>, supplement: "sec. 2").
+This shader works by applying material properties in different layers (see @BlenderManual_PrincipledBSDF).
+For the sake of simplicity and portability for reasons discussed later,
+the only properties used in generating believable materials for the model
+will be the following: diffuse, metallic, roughness and normal.
+Diffuse refers to the "base" color of the diffuse component of the material. For
+a wooden material this color would, on average, be brownish. Metallness specifies
+which parts are metallic. This value should ideally be either zero or one as
+mixed dielectric and metallic surfaces are rather rare to come by. Roughness
+is the anti-proportional equivalent to glossiness, determining the blurring of
+the specular part observed in both dielectric and metallic surfaces. A normal
+map is applied in addition in order to boost macro level bumps on the surface
+without having to include such displacement in the triangular geometry.
+This works by adding the tangent normal stored in the normal map on top
+of each of the faces normal vector @BlenderBook @BlenderManual_PrincipledBSDF.
+
+#figure(
+    box(inset: (bottom: 0.5cm), grid(
+        rows: 2,
+        columns: (80%),
+        image("res/render_shader-nodes_shader_principled-metallic.jpg"),
+        image("res/render_shader-nodes_shader_principled-roughness.jpg")
+    )),
+    caption: [Metalic (above) and roughness (below) on a scale from zero to one @BlenderManual_PrincipledBSDF.]
+) <figure:shading-properties>
+
+@figure:shading-properties shows the effect three material properties: metalic (above),
+roughness (below) and base color rendered directly in Blenders path tracing
+engine Cycles. Detailed explanation of Blenders material properties can be found at @BlenderManual_PrincipledBSDF.
+A more comprehensive collection of good examples for various material properties and their effects on shading can
+be found in the MatSynth dataset @matsynth.
+
+== Procedural materials
+
+Know where to derive the pixel contents of the textures? For this purpose
+the modelling software Blender offers a comprehensive library of tools for
+generating a high variety of variance via procedural generation.
+
 
 === Baking
 
