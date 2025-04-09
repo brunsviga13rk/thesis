@@ -62,3 +62,15 @@ BRDF:
 BTDF:
     short: BTDF
     long: Bidirectional Transmittance Distribution Function
+JPEG:
+    short: JPEG
+    long: Joint Photographic Experts Group
+PNG:
+    short: PNG
+    long: Portable Network Graphics
+webP:
+    short: WebP
+    long: Web Picture
+fBM:
+    short: fBM
+    long: Fractional Brownian motion

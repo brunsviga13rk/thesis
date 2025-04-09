@@ -564,6 +564,10 @@ generating a high variety of variance via procedural generation.
   caption: [Baked shadow remains in place when moving the casting mesh.],
 ) <picture:shadow-baking>
 
+=== Channel encoding
+
+
+
 = Mesh optimization
 
 == Polygon reduction
@@ -575,6 +579,31 @@ generating a high variety of variance via procedural generation.
 
 
 == Texture compression
+
+Rarely any picture nowadays is being stored uncompressed. Assuming a single
+pixel requires 8 bytes of storage space for its three red, green and blue and alpha channels,
+a single texture would require about 134 MB.
+
+$
+  4096^2 dot 2 frac("Byte", "Channel") dot 4 "Channel" approx 134,22 "MB"
+$
+
+For a total of four material properties, each having their own texture, this would amount to 537 MB just
+for the raw pixel data. Having to download half a gigabyte just to load the textures is beyond the margin
+of acceptance. Luckily, image compression can dramatically reduce file size. Since @glTF is the export
+format of choice all textures are embedded on export automatically. For this reason the @glTF specification dictates the image
+format used for the textures. According to the IEC-12113 standard (@glTF 2.0 specification) the only supported
+image formats are @JPEG and @PNG @iec12113_2022. However, the Blender software allows @glTF export with the @webP
+format @BlenderManual_glTF. This is due to support for the @webP extension based on the @glTF 2.0 specification @khronos_webp_ext.
+The @webP image format has the advantage of offering efficient compression, saving storage space, and wide adoption on the web.
+According to Google, @webP encoded images are about 30 % smaller when compressed than @JPEG or @PNG encoded one's
+equivalent visual quality @Alakuijala_2017. Compression of @webP images is based on the VP8 intra-frame encoding and
+offers varying levels of quality with the maximum being lossless @rfc9649. The crucial factor to decide on is the
+compression quality employed when exporting the image textures. Higher compression results in lower image quality.
+Blender offers configuration for this setting through the "Quality" parameter indicating the compression quality
+where 100 percent mean lossless and zero percent is the maximum compression achievable by @webP.
+Lower quality equates to a greater loss in image detail. @picture:compression-error shows a comparison
+of the quality parameter for compression applied to the diffuse texture of the model.
 
 #figure(
     box(inset: (bottom: 0.15em), {
@@ -588,8 +617,19 @@ generating a high variety of variance via procedural generation.
         "10%"
       )})
     }),
-  caption: [Compression loss of webp format at varying levels.],
+  caption: [Compression loss of JPEG format at varying levels.],
 ) <picture:compression-error>
+
+The upper half shows a cropped version of the diffuse texture with @webP compression applied to the level
+indicated by the percentage given below. In order to avoid recompression the image has been encoded as @PNG
+using lossless compression. The image sequence below visualizes the loss in detail. This is done by subtracting the
+compressed image from the uncompressed image and scaling the result for better visibility. The luminance of each pixel
+indicates the difference between uncompressed and compressed image. More gray or white pixels indicate a higher loss
+of details as every non-black pixel represents lost detail. As can be seen, with a quality of 75 % the loss in detail 
+is already quite significant as the perlin noise @fBM of the models metal plating is starting to smooth and loose high frequencies.
+At a level of 10 % the loss is so tremendous, that all noise detail is replaced with compression artifacts and a solid color.
+Judging by this test a compression quality between 100 % and 80 % is to be used for the images as 75 % provides the lower
+bound of acceptable loss of detail.
 
 
 #figure(
