@@ -2,7 +2,7 @@
 
 #import "requirements.typ": *
 
-= Simulation <section:simulation>
+= Application <section:visualisation>
 
 A 3d model is of not much use without others being able to properly explore
 the geometry, pull the levers and check out its functionality. Ideally, it shall
@@ -49,7 +49,7 @@ allowing for copy and paste functionality.
 
 After outlining the overall goals of the web application necessary technologies
 and development strategies can be discussed.
-As stated in @section:simulation a soft goal of the project is easy accessibility
+As stated in @section:visualisation a soft goal of the project is easy accessibility
 of the application. Prominently web technologies have been proven to work well
 in this field as they typically do not require special dependencies natively
 installed other than a web browser with most operating systems having one
