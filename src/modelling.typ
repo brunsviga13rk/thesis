@@ -566,7 +566,19 @@ generating a high variety of variance via procedural generation.
 
 === Channel encoding
 
-
+Material properties in Blender are usually encoded in their own respective image texture.
+This is the standard way of defining materials in computer graphics and this is the method
+used for modelling the Brunsviga so far.
+According to the @glTF 2.0 specification a "metallic-roughness" model is used. Hereby are
+all previously discussed material properties applied but the storage layout of both metallic
+and roughness differs. Instead of having each of them stored as gray-scale in separate textures,
+effectively duplicating two times two color channels in total, both properties are squashed
+into a single texture. Since both metallness and roughness are scalar properties, they require
+at least a single color channel. Storing the same values in all color channels would be redundant.
+As such the @glTF specification requires for metallic and roughness a single image texture,
+where the metallic scalar coefficient is stored in the green channel and the roughness coefficients
+find their place in the green channel. This leaves the image with a single unsued color channel that
+remains unused but removes an entire image texture as two properties are encoded in a single one. @iec12113_2022 
 
 = Mesh optimization
 
