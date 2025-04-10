@@ -411,7 +411,7 @@ has been increased to $4096 times 4096$ (4k) and has even been tested at
 $8192 times 8192$ (8k). As stated in later chapters a size of 4k proves to be
 favorable due to size and performance constraints.
 
-== Shading <section:shading>
+== Physically based rendering <section:shading>
 
 @PBR refers to techniques using statistical models grounded in physical principles
 in order to add realism to computer generated imagery @Moneimne2025. Materials
@@ -473,7 +473,7 @@ through the object.
 
 #figure(
     box(inset: (bottom: 0.5cm), image("res/bsdf.png", width: 40%)),
-  caption: [Visual guide to the bidirectional scattering distribution function @Jurohi2006.],
+  caption: [Visual guide to the bidirectional scattering distribution functions @Jurohi2006.],
 ) <figure:bsdf>
 
 More advanced materials making use of additional interactions such as subsurface scattering
@@ -493,9 +493,16 @@ light after interaction. Common properties used by rendering formats include:
 albedo (tinted diffuse scattering), metallic (tinted reflections without any
 diffuse contribution) and roughness @Moneimne2025.
 
-=== Material properties
+=== Shading Model
 
-A physically based material is commonly defined by a set of properties describing
+Shading models provide solution for solving parts of the rendering equation (@section:shading).
+For example, to achieve glossy reflections a factor is required to 
+determine how spread out incoming samples of light are for a given
+patch of surface thereby having influence in the @BRDF used. Depending on the method
+of rendering, various shading models find application. For the scope of this work
+the focus is set on @PBR models as is common in current day rendering engines. 
+
+A physically based material is defined by a set of properties describing
 the interaction between light and the surface (see deduction in @section:shading).
 The software Blender, as used for modelling (see @section:modelling), defines
 physically based material through the Principled @BSDF Node #cite(<BlenderBook>, supplement: "sec. 2").
@@ -508,11 +515,10 @@ a wooden material this color would, on average, be brownish. Metallness specifie
 which parts are metallic. This value should ideally be either zero or one as
 mixed dielectric and metallic surfaces are rather rare to come by. Roughness
 is the anti-proportional equivalent to glossiness, determining the blurring of
-the specular part observed in both dielectric and metallic surfaces. A normal
-map is applied in addition in order to boost macro level bumps on the surface
-without having to include such displacement in the triangular geometry.
-This works by adding the tangent normal stored in the normal map on top
-of each of the faces normal vector @BlenderBook @BlenderManual_PrincipledBSDF.
+the specular part observed in both dielectric and metallic surfaces.
+@figure:shading-properties shows the effect three material properties: metalic (above),
+roughness (below) and base color rendered directly in Blenders path tracing
+engine Cycles. Detailed explanation of Blenders material properties can be found at @BlenderManual_PrincipledBSDF.
 
 #figure(
     box(inset: (bottom: 0.5cm), grid(
@@ -524,20 +530,116 @@ of each of the faces normal vector @BlenderBook @BlenderManual_PrincipledBSDF.
     caption: [Metalic (above) and roughness (below) on a scale from zero to one @BlenderManual_PrincipledBSDF.]
 ) <figure:shading-properties>
 
-@figure:shading-properties shows the effect three material properties: metalic (above),
-roughness (below) and base color rendered directly in Blenders path tracing
-engine Cycles. Detailed explanation of Blenders material properties can be found at @BlenderManual_PrincipledBSDF.
+Normal maps are applied in addition to boost macro level bumps on the surface
+without having to include such displacement in the triangular geometry @BlenderBook @BlenderManual_PrincipledBSDF.
+This helps to reduce the effort required to manage the memory needed to store additional geometry
+and run rendering pipelines for high amounts of detail.
+@fig:normalmap shows the effect of applying a normal map in comparison to
+true geometric displacement and a flat surface.
+
+#figure(
+    box(inset: (bottom: 0.5em), {
+        image("res/normalmap.svg", width: 90%)
+        grid(
+            columns: (1fr, 1fr, auto),
+            "displacement",
+            "flat geometry",
+            "flat geometry + normal mapping",
+        )
+    }),
+  caption: [Baked textures for major material properties.]) <fig:normalmap>
+
+Normal mapping works by transforming the normal vector stored in the normal map
+from tangent space to object space. Tangent space is the vector space represented
+by an orthonormal basis of which the basis is formed by the normal, tangent and binormal vectors of the surface.
+A simplified transformation of the surface normal by the normal map can be computed by
+scaling each of the orthonormal basis $B$ vectors ($B_X,B_Y,B_Z$) by the tangent normals
+components $arrow(n) = (x,y,z)$ resulting in the transformed normal vector $arrow(n)_r$.
+
+$
+  arrow(n)_r = B_X arrow(n)_x + B_Y arrow(n)_y + B_Z arrow(n)_z
+$
+
+This assumes the tangent normal is of length one and has component values in the range $[-1, 1]$.
+Tangent normals stored in a normal map are usually in the range $[0, 1]$. An even more simplified
+version of normal mapping is bump mapping, where a single scalar height value is used compute the
+tangent normal as the derivative of the bump or height texture. Normal maps have the advantage of capturing
+angled normal data whereas mere height data does not.
+
 A more comprehensive collection of good examples for various material properties and their effects on shading can
 be found in the MatSynth dataset @matsynth.
 
-== Procedural materials
+== Synthesis of procedural materials
 
 Know where to derive the pixel contents of the textures? For this purpose
 the modelling software Blender offers a comprehensive library of tools for
 generating a high variety of variance via procedural generation.
+Procedural generation is the process of artificially generating data by introducing
+pseudo randomness or patterns usually used for textures or models.
+This can be done by mixing real world captured data together with
+generated patterns. These mixing operations, patterns can be created or tweaked
+manually or generated automatically due to the rise of machine learning based
+generation models for procedural materials like VLMaterial @li2025vlmaterialproceduralmaterialgeneration
+or MatFormer @MatFormer. For the sake of simplicity the traditional approach of handcrafting
+procedural material properties is chosen. A decision made due to the lack of experience
+with named generation tools and time constraint. Further exploration of this topic is out of scope
+for this work. 
 
+Generation for the material properties is split up into different kinds of material the machine is composed of.
+The major materials identified are the metal hull painted in green, dark red plastic for lever handles and
+glossy metal for moving parts. Additionally, brass metal components can be found at special places such
+as the sprocket wheel used to select input numbers.
+
+// TODO: insert image highlighting materials used in the machine.
+
+For each of these materials the major properties such as diffuse color, metallic, roughness and normal offset
+are approximated with a set of experience based formulas. These formulas are based on a couple of functions
+that have direct equivalents in the Blender node editor and are as shown in @table:procedural-operators.
+The notation convention is as follows: colors are represented by vectors of the letter c with further specification of origin
+for vertex attributes set as parameter like $arrow(c)_"vertex"$. Colors without parameter are assumed to be constants.
+A material receives a world space position $arrow(p)$ for the pixel currently being colored.
+
+#figure(
+  table(
+    columns: (auto, auto, 1fr),
+    table.header([Name], [Operator], [Description]),
+    [mix], $"mix"(a,b,k)$, [Linear interpolation of colors $a,b$ by a scalar factor $k$.],
+    [ramp], $"ramp"_X (arrow(c))$, [Map input values to output values as given by the set of $X$. Similar to curve adjustments for digital images.],
+    [noise], $h_(d,f)(arrow(p))$, [Generate perlin noise with frequency $f$, distortion factor $d$ for a position $arrow(p)$]
+  ),
+  caption: [Common operators used in procedural generation.]
+) <table:procedural-operators>
+
+Diffuse colors are computed by either of the given methods (5, 6). The basic idea is to mix different base colors
+based on perlin noise with different frequencies and distortion factors. The approximated base colors can be found
+in // TODO: reference appendix for colors.
+
+$
+  "albedo"_"hull" (arrow(p)) = "mix"( arrow(c)_1 dot h_(d_1,f_1) (arrow(p)), arrow(c)_2 dot h_(d_2,f_2) (arrow(p)), k )
+$
+
+For the green metal hull and glossy surface metal this method provides decent results with minimal effort.
+Base colors are derived from pictures sampling the average color in a rectangular region of the picture
+with the assumed least amount of specular interference. For surface being heavily deteriorated by grunge
+a per vertex color attribute can be used to control the amount a certain color is used per vertex.
+In order to avoid hard linear gradients the vertex color may be multiplied by a noise function in order
+to make the transitions more detailed (6). 
+
+$
+  "albedo"_"brass" (arrow(p)) = "ramp"_(X)( arrow(c)_"vertex" dot h_(d_1,f_1) (arrow(p)) )
+$
+
+The vertex color is assumed to be black and white as equation (6) is only used for dirty brass components
+heavily impacted by lubricant and angular friction due to usage. Roughness and normal offset are 
+calculated in virtually the same manner but instead of computing a color a single scalar value is produced.
+Color constants are replaced by scalar constants. Metalness is set to either zero or one depending
+on the material being either a dielectric or not. In total a material count of four arises for
+the model. Example renders of the material can found in figure
+// TODO: insert figure showing off the procedural materials.
 
 === Baking
+
+
 
 #figure(
     box(inset: (bottom: 0.5em), {
@@ -559,10 +661,28 @@ generating a high variety of variance via procedural generation.
 
 === Indirect light
 
+So far the baked diffuse component contains no information about occlusion or shadows
+cast by other parts of the machine. Blender is able to bake information about direct and indirect
+illumination right into the texture itself. This would allow complex illumination for the machine
+without additional computational costs later on since the lightning is rendered statically into the
+texture itself. To further improve the quality of the baked illumination the same environment
+light can be used for baking as is used later for rendering the model in the emulation software.
+Unfortunately baking shadows into the model has a drawback. Statically baked shadows won't move
+when the casting object is moved. This will later result in dark patches where the shadow is baked
+but no shadow should be. This behavior can be seen in @picture:shadow-baking.
+
 #figure(
   image("res/shadow_baking.png", width: 50%),
   caption: [Baked shadow remains in place when moving the casting mesh.],
 ) <picture:shadow-baking>
+
+In the example image the shadow of a lever as been baked into the diffuse texture. When rotating the
+lever the shadow stays put. This effect is too noticeable in order to stay like that.
+A possible workaround would be to only bake the shadows cast by object that are later going to be
+static as well, result in incoherent illumination. The added effort of manually tweaking the casting
+of shadows during the baking process or creation of an advanced material capable of disabling
+shadows depending on the object currently baking is considered, while possible, to great and ultimately
+not worth the effort.
 
 === Channel encoding
 
@@ -643,8 +763,17 @@ At a level of 10 % the loss is so tremendous, that all noise detail is replaced 
 Judging by this test a compression quality between 100 % and 80 % is to be used for the images as 75 % provides the lower
 bound of acceptable loss of detail.
 
-
 #figure(
   image("res/compression_ratio.svg", width: 100%),
   caption: [File size reduction by compression quality.],
 ) <picture:compression-size>
+
+== Summary of compression methods
+
+// TODO: bar chart showing the file size of:
+//  - Highpoly model (glTF) + PNG textures
+//  - Lowpoly model (glTF)  + PNG textures
+//  - Lowpoly model (glTF)  + WebP textures (losseless)
+//  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding
+//  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding
+//  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding + Draco compression
