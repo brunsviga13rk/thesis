@@ -1,6 +1,8 @@
 // LTeX: language=en-US
 
 #import "requirements.typ": *
+#import "@preview/fletcher:0.5.7" as fletcher: diagram, node, edge
+#import fletcher.shapes: rect
 
 = Digital twin <section:digital_twin>
 
@@ -496,11 +498,11 @@ diffuse contribution) and roughness @Moneimne2025.
 === Shading Model
 
 Shading models provide solution for solving parts of the rendering equation (@section:shading).
-For example, to achieve glossy reflections a factor is required to 
+For example, to achieve glossy reflections a factor is required to
 determine how spread out incoming samples of light are for a given
 patch of surface thereby having influence in the @BRDF used. Depending on the method
 of rendering, various shading models find application. For the scope of this work
-the focus is set on @PBR models as is common in current day rendering engines. 
+the focus is set on @PBR models as is common in current day rendering engines.
 
 A physically based material is defined by a set of properties describing
 the interaction between light and the surface (see deduction in @section:shading).
@@ -583,7 +585,7 @@ generation models for procedural materials like VLMaterial @li2025vlmaterialproc
 or MatFormer @MatFormer. For the sake of simplicity the traditional approach of handcrafting
 procedural material properties is chosen. A decision made due to the lack of experience
 with named generation tools and time constraint. Further exploration of this topic is out of scope
-for this work. 
+for this work.
 
 Generation for the material properties is split up into different kinds of material the machine is composed of.
 The major materials identified are the metal hull painted in green, dark red plastic for lever handles and
@@ -591,6 +593,41 @@ glossy metal for moving parts. Additionally, brass metal components can be found
 as the sprocket wheel used to select input numbers.
 
 // TODO: insert image highlighting materials used in the machine.
+
+#figure(
+    box(width: 100%)[
+        #image("res/machine.png", width: 60%)
+        #place(top + left)[
+            #grid(
+                [
+                    #text()[0x6A7261]
+                    #h(0.5em)
+                    #box(height: 1em, width: 3em, fill: rgb("#6A7261"), radius: 0.25em)
+                ],
+                [
+                    #text()[0x5F3E42]
+                    #h(0.5em)
+                    #box(height: 1em, width: 3em, fill: rgb("#5F3E42"), radius: 0.25em)
+                ],
+                [
+                    #text()[0xA4936D]
+                    #h(0.5em)
+                    #box(height: 1em, width: 3em, fill: rgb("#A4936D"), radius: 0.25em)
+                ],
+                [
+                    #text()[0x757575]
+                    #h(0.5em)
+                    #box(height: 1em, width: 3em, fill: rgb("#757575"), radius: 0.25em)
+                ],
+                [
+                    #text()[0xFB2A1B]
+                    #h(0.5em)
+                    #box(height: 1em, width: 3em, fill: rgb("#FB2A1B"), radius: 0.25em)
+                ]
+            )
+        ]
+    ]
+)
 
 For each of these materials the major properties such as diffuse color, metallic, roughness and normal offset
 are approximated with a set of experience based formulas. These formulas are based on a couple of functions
@@ -612,7 +649,7 @@ A material receives a world space position $arrow(p)$ for the pixel currently be
 
 Diffuse colors are computed by either of the given methods (5, 6). The basic idea is to mix different base colors
 based on perlin noise with different frequencies and distortion factors. The approximated base colors can be found
-in // TODO: reference appendix for colors.
+in
 
 $
   "albedo"_"hull" (arrow(p)) = "mix"( arrow(c)_1 dot h_(d_1,f_1) (arrow(p)), arrow(c)_2 dot h_(d_2,f_2) (arrow(p)), k )
@@ -623,41 +660,91 @@ Base colors are derived from pictures sampling the average color in a rectangula
 with the assumed least amount of specular interference. For surface being heavily deteriorated by grunge
 a per vertex color attribute can be used to control the amount a certain color is used per vertex.
 In order to avoid hard linear gradients the vertex color may be multiplied by a noise function in order
-to make the transitions more detailed (6). 
+to make the transitions more detailed (6).
 
 $
   "albedo"_"brass" (arrow(p)) = "ramp"_(X)( arrow(c)_"vertex" dot h_(d_1,f_1) (arrow(p)) )
 $
 
 The vertex color is assumed to be black and white as equation (6) is only used for dirty brass components
-heavily impacted by lubricant and angular friction due to usage. Roughness and normal offset are 
+heavily impacted by lubricant and angular friction due to usage. Roughness and normal offset are
 calculated in virtually the same manner but instead of computing a color a single scalar value is produced.
 Color constants are replaced by scalar constants. Metalness is set to either zero or one depending
 on the material being either a dielectric or not. In total a material count of four arises for
 the model. Example renders of the material can found in figure
-// TODO: insert figure showing off the procedural materials.
+
+#figure(
+    image("res/material-showcase.png", width: 85%),
+    caption: [Synthesized materials rendered with Cycles.])
+
+#figure(
+    grid(columns: (1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%))
+)
 
 === Baking
-
-
 
 #figure(
     box(inset: (bottom: 0.5em), {
         grid(
-            columns: (1fr, 1fr, 1fr, 1fr),
+            columns: (1fr, 1fr, 1fr, 1fr, 1fr),
             row-gutter: 1em,
-            image("res/diffuse.png", height: 3.25cm),
-            image("res/metallic.png", height: 3.25cm),
-            image("res/roughness.png", height: 3.25cm),
-            image("res/normal.png", height: 3.25cm),
+            image("res/diffuse.png", height: 2.9cm),
+            image("res/glossy.png", height: 2.9cm),
+            image("res/metallic.png", height: 2.9cm),
+            image("res/roughness.png", height: 2.9cm),
+            image("res/normal.png", height: 2.9cm),
             "Diffuse",
+            "Glossy",
             "Metallic",
             "Roughness",
-            "Tangent normal"
+            "Normal"
         )
     }),
   caption: [Baked textures for major material properties.],
 ) <picture:baked-textures>
+
+#figure(
+    [
+        #let def-node(path, label) = [
+            #let border = 4pt
+            #grid(
+                rows: 2,
+                row-gutter: 4pt,
+                text(label),
+                box(fill: black, width: 1.5cm + border * 2, height: 1.5cm + border * 2,
+                    box(fill: white, width: 1.5cm + border, height: 1.5cm + border,
+			 image(path, width: 1.5cm)))
+            )
+        ]
+        #set text(10pt)
+        #move(dx: -2.5cm, diagram(
+           	node-stroke: 0pt,
+           	node-inset: 0pt,
+           	node-outset: 0pt,
+           	spacing: 0.5cm,
+           	edge-stroke: 2pt + black,
+           	edge-corner-radius: 5mm,
+            crossing-fill: black,
+           	node((0,0), def-node("res/glossy.png", "Glossy"), shape: rect, name: <gloss>),
+           	node((0,1), def-node("res/diffuse.png", "Diffuse"), shape: rect, name: <diffuse>),
+           	node((0,2), def-node("res/metallic.png", "Metallic"), shape: rect, name: <metal>),
+           	node((0,3), def-node("res/roughness.png", "Roughness"), shape: rect, name: <roughness>),
+           	node((0,4), def-node("res/normal.png", "Normal"), shape: rect, name: <normal>),
+           	node((4,2.5), def-node("res/roughness-metal.png", "R/M"), shape: rect, name: <roughness-metal>),
+           	node((4,1), def-node("res/reflectance.png", "Albedo"), shape: rect, name: <reflectance>),
+           	edge((0,0), "rr", (2,0.95), (4,0.95), "-"),
+           	edge((0,2), "rr", (2,1.15), (4,1.15), "-"),
+           	edge((0,1.05), "rrrr", "-"),
+           	edge((0,3.1), "rr", (2, 2.7), "rr", "-"),
+           	edge((0,2.1), "rr", (2, 2.5), "rr", "-"),
+           	edge((4,1.05), "rrrr", "-|>"),
+           	edge((4,2.5), "rrrr", "-|>"),
+           	edge((0,4), "rrrrr,u,rrr", "-|>")))
+
+        #place(horizon + right, dy: -0.25cm, dx: 2.5cm, image("res/materials.png", width: 5cm))
+    ],
+    caption: [glTF material composition graph.]
+)
 
 === Indirect light
 
@@ -698,7 +785,7 @@ at least a single color channel. Storing the same values in all color channels w
 As such the @glTF specification requires for metallic and roughness a single image texture,
 where the metallic scalar coefficient is stored in the green channel and the roughness coefficients
 find their place in the green channel. This leaves the image with a single unsued color channel that
-remains unused but removes an entire image texture as two properties are encoded in a single one. @iec12113_2022 
+remains unused but removes an entire image texture as two properties are encoded in a single one. @iec12113_2022
 
 = Mesh optimization
 
@@ -757,7 +844,7 @@ indicated by the percentage given below. In order to avoid recompression the ima
 using lossless compression. The image sequence below visualizes the loss in detail. This is done by subtracting the
 compressed image from the uncompressed image and scaling the result for better visibility. The luminance of each pixel
 indicates the difference between uncompressed and compressed image. More gray or white pixels indicate a higher loss
-of details as every non-black pixel represents lost detail. As can be seen, with a quality of 75 % the loss in detail 
+of details as every non-black pixel represents lost detail. As can be seen, with a quality of 75 % the loss in detail
 is already quite significant as the perlin noise @fBM of the models metal plating is starting to smooth and loose high frequencies.
 At a level of 10 % the loss is so tremendous, that all noise detail is replaced with compression artifacts and a solid color.
 Judging by this test a compression quality between 100 % and 80 % is to be used for the images as 75 % provides the lower
