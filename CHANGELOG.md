@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/brunsviga13rk/thesis/compare/v0.2.0...v0.2.1) (2025-03-21)
+
+
+### Bug Fixes
+
+* update template to v0.6.8 fixing outline spacing ([5233c97](https://github.com/brunsviga13rk/thesis/commit/5233c97734998926a69333929a1be8527ca8f368))
+
 ## [0.2.0](https://github.com/brunsviga13rk/thesis/compare/v0.1.0...v0.2.0) (2025-03-17)
 
 
