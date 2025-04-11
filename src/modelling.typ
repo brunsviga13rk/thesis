@@ -898,7 +898,8 @@ image formats are @JPEG and @PNG @iec12113_2022. However, the Blender software a
 format @BlenderManual_glTF. This is due to support for the @webP extension based on the @glTF 2.0 specification @khronos_webp_ext.
 The @webP image format has the advantage of offering efficient compression, saving storage space, and wide adoption on the web.
 According to Google, @webP encoded images are about 30 % smaller when compressed than @JPEG or @PNG encoded one's
-equivalent visual quality @Alakuijala_2017. Compression of @webP images is based on the VP8 intra-frame encoding and
+equivalent visual quality @Alakuijala_2017. A comparsion of texture compression effectiveness is shown in @fig:compression-size.
+Compression of @webP images is based on the VP8 intra-frame encoding and
 offers varying levels of quality with the maximum being lossless @rfc9649. The crucial factor to decide on is the
 compression quality employed when exporting the image textures. Higher compression results in lower image quality.
 Blender offers configuration for this setting through the "Quality" parameter indicating the compression quality
@@ -927,15 +928,116 @@ using lossless compression. The image sequence below visualizes the loss in deta
 compressed image from the uncompressed image and scaling the result for better visibility. The luminance of each pixel
 indicates the difference between uncompressed and compressed image. More gray or white pixels indicate a higher loss
 of details as every non-black pixel represents lost detail. As can be seen, with a quality of 75 % the loss in detail
-is already quite significant as the perlin noise @fBM of the models metal plating is starting to smooth and loose high frequencies.
+is already quite significant as the gradient noise @fBM of the models metal plating is starting to smooth and loose high frequencies.
 At a level of 10 % the loss is so tremendous, that all noise detail is replaced with compression artifacts and a solid color.
 Judging by this test a compression quality between 100 % and 80 % is to be used for the images as 75 % provides the lower
 bound of acceptable loss of detail.
 
+#import "@preview/lilaq:0.2.0" as lq
+
 #figure(
-  image("res/compression_ratio.svg", width: 100%),
-  caption: [File size reduction by compression quality.],
-) <picture:compression-size>
+  [
+    #let data = csv("res/compression.csv")
+
+    #let xs = lq.linspace(0, 100, num: data.len() - 1)
+
+    #let per-enc = ((),(),())
+    #let per-type = ((),(),())
+
+    // Scale average samples up to Megabytes 
+    #let samples = (data.len() - 1) * 1000000.0
+
+    #for row in data.slice(1) {
+      let formats = row.slice(1).chunks(3)
+
+      for i in range(0, 3) {
+
+        per-enc.at(i).push(formats.at(i).map(float).sum() / samples)
+
+        let sum = 0
+        for j in range(0, 3) {
+          sum += float(formats.at(j).at(i))
+        }
+        per-type.at(i).push(sum * 0.33333 / 1000000.0)
+      }
+    }
+
+    #grid(
+      columns: (1fr, 1fr),
+      lq.diagram(
+        width: 6cm,
+        legend: (position: left + top),
+        margin: 10%,
+        ylabel: [Bytes (MB)],
+        xlabel: [Quality (%)],
+        title: "Average file size per quality",
+        yaxis: (scale: "log"),
+        lq.plot(xs, per-enc.at(0), mark: none, stroke: 1pt + blue, label: text(weight: "regular", [WebP])), 
+        lq.plot(xs, per-enc.at(1), mark: none, stroke: 1pt + orange, label: text(weight: "regular", [JPEG])),
+        lq.plot(xs, per-enc.at(2), mark: none, stroke: 1pt + red, label: text(weight: "regular", [PNG])),
+      ),
+      lq.diagram(
+        width: 6cm,
+        legend: (position: left + top),
+        margin: 10%,
+        ylabel: [Bytes (MB)],
+        xlabel: [Quality (%)],
+        title: "File size per quality",
+        yaxis: (scale: "log"),
+        lq.plot(xs, per-type.at(0), mark: none, stroke: 1pt + blue, label: text(weight: "regular", [Normal])), 
+        lq.plot(xs, per-type.at(1), mark: none, stroke: 1pt + orange, label: text(weight: "regular", [Albedo])), 
+        lq.plot(xs, per-type.at(2), mark: none, stroke: 1pt + red, label: text(weight: "regular", [R/M])),
+      ),
+    )
+    #v(1em)
+  ],
+  caption: [File size reduced by compression of varying quality.]) <fig:compression-size>
+
+On the left of @fig:compression-size the average file size of all three textures (albedo, normal and R/M) can be seen after
+compressing with either @PNG, @JPEG or @webP. @PNG compression with reduced quality had almost no effect yielding a file size of
+about 3 MB. @webP compression shows to be the most effective at reducing file size performing considerably better than @JPEG
+and producing the smallest file for every compression quality. @JPEG performs wors than @PNG in compressing at quality levels
+close to lossless where the @JPEG encoding looses details, while yielding larger files than @PNG.
+As per material property, all three exhibit similar compression behavior by shrinking in size with reduced quality for all
+three compression methods. The right side shows the average file size per material property for all three compression methods.
+Interestingly, the albedo coefficients produce the smallest file, while using all three color channels.
+The R/M map consumes the most amount of storage space, likely due to the high variance in roughness values,
+as the albedo and normal map have both lower variance. 
+
+/*
+#!/usr/bin/env bash
+
+function convert_format() {
+    format="$1"
+
+    echo "--- $format at $2 -------------------------------"
+
+    rm -rf "$format"
+    mkdir "$format"
+
+    mogrify -path "./$format" -quality "$2" -format "$format" *.png
+
+    for file in $format/*;
+    do
+        printf ",$(stat "$file" | grep -oP "Size: \K([0-9]+)")" >> result.csv
+    done
+}
+
+touch result.csv
+
+printf "compression,webp (normal),webp (albedo),webp (R/M),jpg (normal),jpg (albedo),jpg (R/M),png (normal),png (albedo),png (R/M)\n" >> result.csv
+
+factors="10,20,30,40,50,60,70,80,90,100"
+for quality in ${factors//,/ }
+do
+    printf "$quality%%" >> result.csv
+    convert_format "webp" "$quality%"
+    convert_format "jpg" "$quality%"
+    convert_format "png" "$quality%"
+    printf "\n" >> result.csv
+done
+
+*/
 
 == Summary of compression methods
 
@@ -946,3 +1048,4 @@ bound of acceptable loss of detail.
 //  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding
 //  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding
 //  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding + Draco compression
+
