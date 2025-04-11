@@ -587,49 +587,55 @@ procedural material properties is chosen. A decision made due to the lack of exp
 with named generation tools and time constraint. Further exploration of this topic is out of scope
 for this work.
 
-Generation for the material properties is split up into different kinds of material the machine is composed of.
+=== Reflectance estimation
+
+Generation for the material properties is split up into different kinds of materials the machine is composed of.
 The major materials identified are the metal hull painted in green, dark red plastic for lever handles and
 glossy metal for moving parts. Additionally, brass metal components can be found at special places such
-as the sprocket wheel used to select input numbers.
-
-// TODO: insert image highlighting materials used in the machine.
+as the sprocket wheel used to select input numbers alongside metal plates used as digit
+indicator painted in orange (hardly visible in @fig:estimated-reflectance).
 
 #figure(
     box(width: 100%)[
         #image("res/machine.png", width: 60%)
         #place(top + left)[
-            #grid(
-                [
-                    #text()[0x6A7261]
-                    #h(0.5em)
-                    #box(height: 1em, width: 3em, fill: rgb("#6A7261"), radius: 0.25em)
-                ],
-                [
-                    #text()[0x5F3E42]
-                    #h(0.5em)
-                    #box(height: 1em, width: 3em, fill: rgb("#5F3E42"), radius: 0.25em)
-                ],
-                [
-                    #text()[0xA4936D]
-                    #h(0.5em)
-                    #box(height: 1em, width: 3em, fill: rgb("#A4936D"), radius: 0.25em)
-                ],
-                [
-                    #text()[0x757575]
-                    #h(0.5em)
-                    #box(height: 1em, width: 3em, fill: rgb("#757575"), radius: 0.25em)
-                ],
-                [
-                    #text()[0xFB2A1B]
-                    #h(0.5em)
-                    #box(height: 1em, width: 3em, fill: rgb("#FB2A1B"), radius: 0.25em)
-                ]
-            )
-        ]
-    ]
-)
+            #grid(columns: 2,
+                  align: left + horizon,
+                  row-gutter: 1.5em,
+                  column-gutter: 2mm,
+                  text()[0x5F3E42],
+                  box(height: 1em, width: 1em, fill: rgb("#5F3E42"), radius: 0.25em),
+                  text()[0x6A7261],
+                  box(height: 1em, width: 1em, fill: rgb("#6A7261"), radius: 0.25em),
+                  text()[0xA4936D],
+                  box(height: 1em, width: 1em, fill: rgb("#A4936D"), radius: 0.25em))]
+        #place(top + right)[
+          #grid(columns: 2,
+                align: left + horizon,
+                row-gutter: 1.5em,
+                column-gutter: 2mm,
+                box(height: 1em, width: 1em, fill: rgb("#FB2A1B"), radius: 0.25em),
+                text()[0xFB2A1B],
+                box(height: 1em, width: 1em, fill: rgb("#757575"), radius: 0.25em),
+                text()[0x757575])]
+        #place(top + left, line(start: (2.75cm, 2mm), end: (6.6cm, 1.5cm)))
+        #place(top + left, line(start: (2.75cm, 3em), end: (6cm, 2cm)))
+        #place(top + left, line(start: (2.75cm, 23mm), end: (6.5cm, 2.5cm)))
 
-For each of these materials the major properties such as diffuse color, metallic, roughness and normal offset
+        #place(top + left, line(start: (12.75cm, 2mm), end: (8.8cm, 1.5cm)))
+        #place(top + left, line(start: (12.75cm, 3em), end: (10.8cm, 5.6cm)))],
+        caption: [ Average material reflectance and their location on the device. ]) <fig:estimated-reflectance>
+
+Material reflectance, the sum of reflected light towards the camera, can be estimated by averaging
+the pixels of materials in pictures of the machine as can be seen in @fig:estimated-reflectance.
+Reflectance alone is a combination of noise, light color, metallic reflection and diffuse scattering.
+Therefore the area of sampling shall be one with the least amount of specular interference.
+It can be used as the base color for either metallic or dielectric surfaces but yields no further
+detail about metalness, roughness or normal parameters.
+
+=== Experience based model
+
+More advanced material properties such as non-homogenous diffuse color, metallic, roughness and normal offset
 are approximated with a set of experience based formulas. These formulas are based on a couple of functions
 that have direct equivalents in the Blender node editor and are as shown in @table:procedural-operators.
 The notation convention is as follows: colors are represented by vectors of the letter c with further specification of origin
@@ -642,12 +648,13 @@ A material receives a world space position $arrow(p)$ for the pixel currently be
     table.header([Name], [Operator], [Description]),
     [mix], $"mix"(a,b,k)$, [Linear interpolation of colors $a,b$ by a scalar factor $k$.],
     [ramp], $"ramp"_X (arrow(c))$, [Map input values to output values as given by the set of $X$. Similar to curve adjustments for digital images.],
-    [noise], $h_(d,f)(arrow(p))$, [Generate perlin noise with frequency $f$, distortion factor $d$ for a position $arrow(p)$]
+    [noise], $h_(d,f)(arrow(p))$, [Generate gradient noise with frequency $f$, distortion factor $d$ for a position $arrow(p)$]
   ),
   caption: [Common operators used in procedural generation.]
 ) <table:procedural-operators>
 
-Diffuse colors are computed by either of the given methods (5, 6). The basic idea is to mix different base colors
+Diffuse colors are computed by either of the given methods (5, 6). The basic idea is to mix different tones of base colors,
+sampled from different regions (@fig:estimated-reflectance),
 based on perlin noise with different frequencies and distortion factors. The approximated base colors can be found
 in
 
@@ -656,8 +663,7 @@ $
 $
 
 For the green metal hull and glossy surface metal this method provides decent results with minimal effort.
-Base colors are derived from pictures sampling the average color in a rectangular region of the picture
-with the assumed least amount of specular interference. For surface being heavily deteriorated by grunge
+For surfaces being heavily deteriorated by grunge
 a per vertex color attribute can be used to control the amount a certain color is used per vertex.
 In order to avoid hard linear gradients the vertex color may be multiplied by a noise function in order
 to make the transitions more detailed (6).
@@ -671,37 +677,148 @@ heavily impacted by lubricant and angular friction due to usage. Roughness and n
 calculated in virtually the same manner but instead of computing a color a single scalar value is produced.
 Color constants are replaced by scalar constants. Metalness is set to either zero or one depending
 on the material being either a dielectric or not. In total a material count of four arises for
-the model. Example renders of the material can found in figure
+the model. Example renders of the material can found in figure @fig:material-showcase.
 
 #figure(
     image("res/material-showcase.png", width: 85%),
-    caption: [Synthesized materials rendered with Cycles.])
+    caption: [Synthesized materials rendered with Cycles.]) <fig:material-showcase>
+
+The six major materials have been applied to a spherical mesh and rendered with path tracing in the
+Cycles rendering engine at 512 samples per pixel using a high resolution environment map to generate a
+detailed and realistic recreation of synthesized material parameters. When applying the materials to
+the corresponding parts of the model geometry and illumination are ready for a comparison.
+For the purpose of determining the quality of synthesized materials and modelled geometry a direct comparison
+between a reference image and computer generated image of the digital recreation can be seen in @fig:arrangement.
 
 #figure(
-    grid(columns: (1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%))
-)
+    grid(columns: (1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%)),
+    caption: [Arrangement of a picture (right) and computer generated model (left).]) <fig:arrangement>
 
-=== Baking
+The left side depicts a picture taken of a physical machine. On the right side is the path traced digital recreation
+rendered with Cycles. Lightning and perspective are at mismatch, however they are related close enough to determine
+a decent quality of recreation. Shape and color match good enough for the model to be recognizable as the exact
+calculator model produced in the second half of the twentieth century. However, certain parameters may be off by a bit.
+Roughness of the metal hull, depending on the picture of reference may either be too low or to high.
+Similarly the surface bumps of the hull may be to noticeable thus miss representing the smooth nature of the metal plating.
+Additionally, the use of an environment map differing too much from the lightning condition of the reference pictures
+has led to conclusions making the plastics rougher than they may need to be.
+Judging on the exact quality of material properties is however difficult, as different lightning conditions,
+signal degrading of cameras and high view dependence produce many scenarios with great variance in similarity.
+On one occasion material parameters seem to be a perfect match, at others the material may look simply off.
+Due to this reason the achieved quality is deemed good enough for finalizing the model. 
+
+=== Baking textures
+
+Materials as represented and used in Blender cannot be exported to the @glTF format.
+Each of the major properties must be encoded into its own image texture instead of procedurally generating
+them on the fly. The model is already equipped with a texture map allowing to shove each surfaces property value
+onto a texture.
+The process of projecting extracted material properties such as diffuse or roughness on
+an image texture through a texture map is referred to as baking @BlenderManual_RenderBaking.
+For the current model a total of five
+properties are baked to separate textures, each of which can replace the procedural generation method
+with pre rendered pixel data. This allows for easy interchange of the materials.
+The baked textures can be seen in @fig:baked-textures.
 
 #figure(
     box(inset: (bottom: 0.5em), {
         grid(
             columns: (1fr, 1fr, 1fr, 1fr, 1fr),
             row-gutter: 1em,
-            image("res/diffuse.png", height: 2.9cm),
-            image("res/glossy.png", height: 2.9cm),
-            image("res/metallic.png", height: 2.9cm),
-            image("res/roughness.png", height: 2.9cm),
-            image("res/normal.png", height: 2.9cm),
             "Diffuse",
             "Glossy",
             "Metallic",
             "Roughness",
-            "Normal"
+            "Normal",
+            image("res/diffuse.png", height: 2.9cm),
+            image("res/glossy.png", height: 2.9cm),
+            image("res/metallic.png", height: 2.9cm),
+            image("res/roughness.png", height: 2.9cm),
+            image("res/normal.png", height: 2.9cm)
         )
     }),
   caption: [Baked textures for major material properties.],
-) <picture:baked-textures>
+) <fig:baked-textures>
+
+Baked material properties include: diffuse and glossy color both without any lightning information.
+Diffuse color is the reflectance coefficient for dielectric parts of the machine scattering light.
+Glossy is the reflectance coefficient for specular reflection used metals.
+The metallic component determines on a scale $[0,1]$ how metallic a surface patch is.
+Similar for roughness for which higher values mean more blurry reflections and less gloss.
+The tangent normals are also baked in order get some more detailed bumps later on.
+Baking for each texture map required between five and twenty minutes at 32 samples per pixel
+for each of the 4k images. The diffuse component was the quickest to bake at about five minutes.
+Each edge of a baked surface is extended by eight pixels outwards in order to avoid
+artifacts when the texture is later rendered at edges where the sampling process interpolates
+surrounding pixels. Such artifacts are especially noticeable for normal map as small changes
+in pixel values may be followed by strong changes in reflectance due to changes in angle.
+
+=== Indirect light capture
+
+So far the baked diffuse component contains no information about occlusion or shadows
+cast by other parts of the machine. Blender is able to bake information about direct and indirect
+illumination right into the texture itself. This would allow complex illumination for the machine
+without additional computational costs later on since the lightning is rendered statically into the
+texture itself. To further improve the quality of the baked illumination the same environment
+light can be used for baking as is used later for rendering the model in the emulation software.
+Unfortunately baking shadows into the model has a drawback. Statically baked shadows won't move
+when the casting object is moved. This will later result in dark patches where the shadow is baked
+but no shadow should be. This behavior can be seen in @picture:shadow-baking.
+
+#figure(
+  box(inset: (bottom: 1em), image("res/shadow_baking.png", width: 50%)),
+  caption: [Baked shadow remains in place when moving the casting mesh.],
+) <picture:shadow-baking>
+
+In the example image the shadow of a lever as been baked into the diffuse texture. When rotating the
+lever the shadow stays put. This effect is too noticeable in order to stay like that.
+A possible workaround would be to only bake the shadows cast by object that are later going to be
+static as well, result in incoherent illumination. The added effort of manually tweaking the casting
+of shadows during the baking process or creation of an advanced material capable of disabling
+shadows depending on the object currently baking is considered, while possible, to great and ultimately
+not worth the effort.
+
+=== Composition and channel encoding
+
+Material properties in Blender are usually encoded in their own respective image texture.
+This is the standard way of defining materials in computer graphics and this is the method
+used for modelling the Brunsviga so far.
+Materials defined in @glTF are not able to apply diffuse and glossy coefficients separately.
+Due to this both diffuse and glossy reflectance coefficients need to be combined to a single
+coefficient referred to as albedo. Albedo is the general reflectance coefficient combining
+the weighted sum of all material models reflectance coefficients. Since we differentiate
+between dielectric and metallic reflectance coefficients these are the two that need mixing.
+For this purpose each pixel of the diffuse texture map is multiplied with the inverse
+of the metallic map computed as:
+
+$
+  (1 - "metallic") dot "diffuse"
+$
+
+Likewise the glossy coefficients are scaled by the untransformed metallic component masking
+out reflectance coefficients undesired in diffuse reflections.
+
+$
+  "metallic" dot "glossy"
+$
+
+Both (7) and (8) are combined to compute the final albedo color which can be done by linearly interpolating
+both colors together through the metallic component (9). The final result can be seen in @fig:material-composition.
+
+$
+  "albedo" = [ (1 - "metallic") dot "diffuse" ] + [ "metallic" dot "glossy" ]
+$
+
+According to the @glTF 2.0 specification a "metallic-roughness" model is used. Hereby are
+all previously discussed material properties are applied but the storage layout of both metallic
+and roughness differs. Instead of having each of them stored as gray-scale in separate textures,
+effectively duplicating two times two color channels in total, both properties are squashed
+into a single texture (herer named "R/M" (Roughness/Metallic)). Since both metallness and roughness are scalar properties, they require
+at least a single color channel. Storing the same values in all color channels would be redundant.
+As such the @glTF specification requires for metallic and roughness a single image texture,
+where the metallic scalar coefficient is stored in the green channel and the roughness coefficients
+find their place in the green channel. This leaves the image with a single unsued color channel that
+remains unused but removes an entire image texture as two properties are encoded in a single one. @iec12113_2022
 
 #figure(
     [
@@ -741,51 +858,16 @@ the model. Example renders of the material can found in figure
            	edge((4,2.5), "rrrr", "-|>"),
            	edge((0,4), "rrrrr,u,rrr", "-|>")))
 
-        #place(horizon + right, dy: -0.25cm, dx: 2.5cm, image("res/materials.png", width: 5cm))
-    ],
-    caption: [glTF material composition graph.]
-)
+        #place(horizon + right, dy: -0.25cm, image("res/materials.png", width: 5cm))
+        #v(1em)],
+    caption: [Material composition graph from baked input to rendered result.])
+    <fig:material-composition>
 
-=== Indirect light
-
-So far the baked diffuse component contains no information about occlusion or shadows
-cast by other parts of the machine. Blender is able to bake information about direct and indirect
-illumination right into the texture itself. This would allow complex illumination for the machine
-without additional computational costs later on since the lightning is rendered statically into the
-texture itself. To further improve the quality of the baked illumination the same environment
-light can be used for baking as is used later for rendering the model in the emulation software.
-Unfortunately baking shadows into the model has a drawback. Statically baked shadows won't move
-when the casting object is moved. This will later result in dark patches where the shadow is baked
-but no shadow should be. This behavior can be seen in @picture:shadow-baking.
-
-#figure(
-  image("res/shadow_baking.png", width: 50%),
-  caption: [Baked shadow remains in place when moving the casting mesh.],
-) <picture:shadow-baking>
-
-In the example image the shadow of a lever as been baked into the diffuse texture. When rotating the
-lever the shadow stays put. This effect is too noticeable in order to stay like that.
-A possible workaround would be to only bake the shadows cast by object that are later going to be
-static as well, result in incoherent illumination. The added effort of manually tweaking the casting
-of shadows during the baking process or creation of an advanced material capable of disabling
-shadows depending on the object currently baking is considered, while possible, to great and ultimately
-not worth the effort.
-
-=== Channel encoding
-
-Material properties in Blender are usually encoded in their own respective image texture.
-This is the standard way of defining materials in computer graphics and this is the method
-used for modelling the Brunsviga so far.
-According to the @glTF 2.0 specification a "metallic-roughness" model is used. Hereby are
-all previously discussed material properties applied but the storage layout of both metallic
-and roughness differs. Instead of having each of them stored as gray-scale in separate textures,
-effectively duplicating two times two color channels in total, both properties are squashed
-into a single texture. Since both metallness and roughness are scalar properties, they require
-at least a single color channel. Storing the same values in all color channels would be redundant.
-As such the @glTF specification requires for metallic and roughness a single image texture,
-where the metallic scalar coefficient is stored in the green channel and the roughness coefficients
-find their place in the green channel. This leaves the image with a single unsued color channel that
-remains unused but removes an entire image texture as two properties are encoded in a single one. @iec12113_2022
+The normal map is passed through without any need for modification. Out of the five textures only
+three are used in the final model, leading to a decrease in file size since less redundancy
+is stored in the already large textures. @glTF also allows for an ambience occlusion
+texture, which is a grayscale image used to darken surfaces of model where little light
+is expected to reach. 
 
 = Mesh optimization
 
