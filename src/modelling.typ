@@ -1052,7 +1052,7 @@ bound of acceptable loss of detail.
 On the left of @fig:compression-size the average file size of all three textures (albedo, normal and R/M) can be seen after
 compressing with either @PNG, @JPEG or @webP. @PNG compression with reduced quality had almost no effect yielding a file size of
 about 3 MB. @webP compression shows to be the most effective at reducing file size performing considerably better than @JPEG
-and producing the smallest file for every compression quality. @JPEG performs wors than @PNG in compressing at quality levels
+and producing the smallest file for every compression quality. @JPEG performs worse than @PNG in compressing at quality levels
 close to lossless where the @JPEG encoding looses details, while yielding larger files than @PNG.
 As per material property, all three exhibit similar compression behavior by shrinking in size with reduced quality for all
 three compression methods. The right side shows the average file size per material property for all three compression methods.
