@@ -705,7 +705,7 @@ has led to conclusions making the plastics rougher than they may need to be.
 Judging on the exact quality of material properties is however difficult, as different lightning conditions,
 signal degrading of cameras and high view dependence produce many scenarios with great variance in similarity.
 On one occasion material parameters seem to be a perfect match, at others the material may look simply off.
-Due to this reason the achieved quality is deemed good enough for finalizing the model. 
+Due to this reason the achieved quality is deemed good enough for finalizing the model.
 
 === Baking textures
 
@@ -867,17 +867,71 @@ The normal map is passed through without any need for modification. Out of the f
 three are used in the final model, leading to a decrease in file size since less redundancy
 is stored in the already large textures. @glTF also allows for an ambience occlusion
 texture, which is a grayscale image used to darken surfaces of model where little light
-is expected to reach. 
+is expected to reach.
 
 = Mesh optimization
 
+The generated mesh from previous chapters is designed primarily with accuracy
+in mind. Ease of rendering was considered lower priority. However, since the
+model is to be rendered on all kinds of devices later on, optimization of the
+mesh is a crucial part of delivering a pleasing experience, since high poly
+meshes result is poor performance on less capable devices. For this reason
+two methods of reducing mesh complexity are applied: the reduction of polygons
+and compression of textures.
+
 == Polygon reduction
+
+When reducing mesh complexity the most obvious area of work is the amount of
+polygons in the scene. The high poly mesh contains about 62,468 vertices.
+In order to reduce the number of vertices in the mesh several methods can be
+applied. Some faces can be removed from the mesh without impacting visual
+quality at all. These are generally edges contained within a surface that
+do not contribute to the shape of mesh. Additionally, edges used to create
+rounded corners and edges can sometimes be removed to. This results in rougher
+edges and corners. Due to smooth shading and the complex shape of the overall
+geometry do a good job of hiding rougher edges. For small edges (smaller than 1 mm)
+all beveled geometry can be removed. Smoothness is introduced by adding a bevel
+shader to the material. The bevel shader rounds otherwise sharp edges during
+shading @BlenderManual_BevelShader.
+Since the bevel shader is Blender material specific feature and thus
+incompatible with the @glTF format, the bevel shaders impact on normals is baked
+into the normal map. Another useful trick is to remove faces that won't be
+seen in the final simulation and thus can be safely deleted from the mesh as well.
+Such faces typically are situated where two faces of intersecting objects meet
+creating doubled and especially redundant surface area. Deleting these
+surfaces has little effect on the actual poly count of the mesh as these are
+quads with four vertices for the most part. The most effective method vertex
+reduction proved to be the removal of small beveled edges.
+
+#pagebreak()
+
+Besides measuring the raw vertex count of the mesh another metric may be used
+to judge the "waste" of rendered polygons. "Waste" refers to unnecessary
+computation steps during rendering pipelines where polygons overdraw previously
+rendered polygons. Typically, modern rasterization solves this problem
+by masking out polygons that won't be seen by the camera with a depth and
+stencil test. However, these
+polygons still need to be accounted for by the rendering pipeline, and it is
+preferable to reduce the amount of overdraw happening in a scene. In order
+to get an overview of overdraw the mesh can be rendered from a specific angle
+with a white background where each face rendered darkens the background by
+a certain percentage. This results in an "overdraw" diagram of which an example
+can be seen in @picture:overdraw.
 
 #figure(
   image("res/overdraw.png", width: 75%),
   caption: [Visualization of polygon overdraw.],
 ) <picture:overdraw>
 
+From the diagram a quite significant overdraw can be estimated as especially
+the central parts of the machine darken quite a bit.
+Interestingly, a overdraw of one polygon does not exist in the diagram because
+the mesh is made out of meshes each having front and backside.
+Unfortunately there is not much to be done about the inner part of the machine
+as these are instrumental in the mechanical functionality of the machine.
+Even when there is significant overdraw the mesh has been reduced from 62,468
+to 27,859 resulting in a ratio of reduction of about 45 % which is considered
+to be good tradeoff between detail and complexity.
 
 == Texture compression
 
@@ -944,7 +998,7 @@ bound of acceptable loss of detail.
     #let per-enc = ((),(),())
     #let per-type = ((),(),())
 
-    // Scale average samples up to Megabytes 
+    // Scale average samples up to Megabytes
     #let samples = (data.len() - 1) * 1000000.0
 
     #for row in data.slice(1) {
@@ -966,26 +1020,28 @@ bound of acceptable loss of detail.
       columns: (1fr, 1fr),
       lq.diagram(
         width: 6cm,
+        height: 3.9cm,
         legend: (position: left + top),
         margin: 10%,
         ylabel: [Bytes (MB)],
         xlabel: [Quality (%)],
         title: "Average file size per quality",
         yaxis: (scale: "log"),
-        lq.plot(xs, per-enc.at(0), mark: none, stroke: 1pt + blue, label: text(weight: "regular", [WebP])), 
+        lq.plot(xs, per-enc.at(0), mark: none, stroke: 1pt + blue, label: text(weight: "regular", [WebP])),
         lq.plot(xs, per-enc.at(1), mark: none, stroke: 1pt + orange, label: text(weight: "regular", [JPEG])),
         lq.plot(xs, per-enc.at(2), mark: none, stroke: 1pt + red, label: text(weight: "regular", [PNG])),
       ),
       lq.diagram(
         width: 6cm,
+        height: 3.9cm,
         legend: (position: left + top),
         margin: 10%,
         ylabel: [Bytes (MB)],
         xlabel: [Quality (%)],
         title: "File size per quality",
         yaxis: (scale: "log"),
-        lq.plot(xs, per-type.at(0), mark: none, stroke: 1pt + blue, label: text(weight: "regular", [Normal])), 
-        lq.plot(xs, per-type.at(1), mark: none, stroke: 1pt + orange, label: text(weight: "regular", [Albedo])), 
+        lq.plot(xs, per-type.at(0), mark: none, stroke: 1pt + blue, label: text(weight: "regular", [Normal])),
+        lq.plot(xs, per-type.at(1), mark: none, stroke: 1pt + orange, label: text(weight: "regular", [Albedo])),
         lq.plot(xs, per-type.at(2), mark: none, stroke: 1pt + red, label: text(weight: "regular", [R/M])),
       ),
     )
@@ -1002,7 +1058,7 @@ As per material property, all three exhibit similar compression behavior by shri
 three compression methods. The right side shows the average file size per material property for all three compression methods.
 Interestingly, the albedo coefficients produce the smallest file, while using all three color channels.
 The R/M map consumes the most amount of storage space, likely due to the high variance in roughness values,
-as the albedo and normal map have both lower variance. 
+as the albedo and normal map have both lower variance.
 
 /*
 #!/usr/bin/env bash
@@ -1048,4 +1104,3 @@ done
 //  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding
 //  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding
 //  - Lowpoly model (glTF)  + WebP textures (90% compression) + Channel encoding + Draco compression
-
