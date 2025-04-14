@@ -25,13 +25,6 @@
       contact: "s222468@student.dhbw-mannheim.de",
       matriculation-number: 1191225,
     ),
-    (
-      name: "Felix Lothar Müller",
-      course: "TINF22IT2",
-      company: none,
-      contact: "s221978@student.dhbw-mannheim.de",
-      matriculation-number: 9276615,
-    ),
   ),
   // information about thesis
   thesis: (
