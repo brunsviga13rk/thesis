@@ -55,5 +55,6 @@
 ))
 
 #include "intro.typ"
+#include "structure.typ"
 #include "modelling.typ"
 #include "webapp.typ"
