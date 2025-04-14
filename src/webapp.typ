@@ -248,3 +248,11 @@ of tools and frameworks described more in-depth in the following chapters:
     to time constraints.
   ],
 )
+
+== Initialization
+
+=== Environment
+
+== Event loop
+
+
