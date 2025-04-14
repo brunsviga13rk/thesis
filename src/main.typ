@@ -55,6 +55,7 @@
     ),
     bibliography: bibliography("refs.bib"),
     glossary: yaml("acros.yml"),
+    abstract: include "abstract.typ",
   ),
   style: (
     header: (
