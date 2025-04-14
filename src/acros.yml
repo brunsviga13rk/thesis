@@ -77,3 +77,6 @@ fBM:
 RPN:
     short: RPN
     long: Reverse Polish Notation
+WASM:
+    short: WASM
+    long: Web Assembly

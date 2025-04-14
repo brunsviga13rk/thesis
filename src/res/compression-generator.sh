@@ -17,7 +17,6 @@ function convert_format() {
 }
 
 touch result.csv
-
 printf "compression,webp (normal),webp (albedo),webp (R/M),jpg (normal),jpg (albedo),jpg (R/M),png (normal),png (albedo),png (R/M)\n" >> result.csv
 
 factors="10,20,30,40,50,60,70,80,90,100"

@@ -1,13 +1,16 @@
+#import "requirements.typ": *
 
 = Compression data generator
+
+Bash script used to generate the data of the evaluation compression
+algorithms used by different raster file formats.
 
 #figure(
     raw(read("res/compression-generator.sh"), lang: "bash"),
     caption: [Shell script used to generate data for compressed images.]
 )
 
-
-= Operator precedence <table:precedence>
+== Operator precedence <table:precedence>
 
 #figure(
   table(columns: 2, table.header([Operator], [Precedence]),
@@ -17,11 +20,9 @@
   [/], [2],
   [(], [3],
   [)], [3]), caption: [Operator precedence as used in the simulation.]
-) 
+)
 
-= Shunting yard algorithm <appendix:shunting-yard>
-
-#import "@preview/lovelace:0.3.0": *
+== Shunting yard algorithm <appendix:shunting-yard>
 
 #figure(
   pseudocode-list[
@@ -70,3 +71,25 @@
   + *end*
 ], caption: [Shunting yard algorithm.]
 )
+
+== Long multiplication <fig:long-mult>
+
+#figure(
+  pseudocode-list[
+      + *let* a := integer number
+      + *let* b := integer number
+      + *let* $v_max$ := max(a, b)
+      + *let* $v_min$ := min(a, b)
+      + *let* s := $floor(log_10(v_min))$
+      + *let* sum := 0
+      + *for* i := 0 *to* s *do*
+        + *let* k := $mod(frac(v_min, 10^i), 10)$
+        + *for* j := 0 *to* k *do*
+            + sum += $v_max$
+        + *end*
+      + *end*
+  ], caption: [Long multiplication.])
+
+#figure(raw(lang: "lua", read("res/example.lua").trim()), caption: [
+    Template program for the Lua editor.
+]) <fig:lua-template>

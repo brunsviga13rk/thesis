@@ -1,9 +1,6 @@
 // LTeX: language=en-US
 
 #import "requirements.typ": *
-#import "@preview/lilaq:0.2.0" as lq
-#import "@preview/fletcher:0.5.7" as fletcher: diagram, node, edge
-#import fletcher.shapes: rect
 
 #pagebreak(weak: true)
 
@@ -17,19 +14,18 @@ The following operations are available:
 
 #figure(
   table(
-    columns: 2,
-    table.header([Name], [Action and description]),
-    [Select input], [Rotate input sprockets, sets the value of the input register.],
-    [Addition], [Clockwise rotation of the operaiton crank, adds input register onto result register and increments counter.],
-    [Subtraction], [Counter-clockwise rotation of the operaiton crank, subtracts input register from result register and increments counter.],
-    [Reset counter], [Pull of counter reset handle, writes zero to counter register.],
-    [Reset input], [Pull input reset handle, writes zero to input register.],
-    [Reset result], [Pull result reset handle, writes zero to result register.],
-    [Reset machine], [Pull reset handle, writes zero to all registers.],
-    [Right shift sled], [Push shift knob to the right to shift the result register by one digit to the right.],
-    [Left shift sled], [Push shift knob to the left to shift the result register by one digit to the left.]
+    columns: (2.5cm, 1fr),
+    table.header([], [Action and description]),
+    image("res/input.svg", width: 2cm), [Rotate input sprockets, sets the value of the input register.],
+    image("res/addition.svg", width: 2cm), [Clockwise rotation of the operaiton crank, adds input register onto result register and increments counter.],
+    image("res/subtract.svg", width: 2cm), [Counter-clockwise rotation of the operaiton crank, subtracts input register from result register and increments counter.],
+    image("res/counter_reset.svg", width: 2cm), [Pull of counter reset handle, writes zero to counter register.],
+    image("res/input_reset.svg", width: 2cm), [Pull input reset handle, writes zero to input register.],
+    image("res/result_reset.svg", width: 2cm),  [Pull result reset handle, writes zero to result register.],
+    image("res/all_reset.svg", width: 2cm), [Pull reset handle, writes zero to all registers.],
+    image("res/sled_move.svg", width: 2cm), [Push shift knob to the right or left to shift the result register by one digit to the right or left.],
   ),
-  caption: [Operations of calculator to a human user.]) <table:actions>
+  caption: [Handbook of operations of calculator to a human user.]) <table:actions>
 
 @table:actions depicts all actions and their respective effect on the calculator which require implementation in order
 to offer complete functionality of the machine. Most of these actions are simple affine transformations applied to specific
@@ -56,9 +52,9 @@ the logic over multiple files.
 === Action formulation
 
 For ease of use the machine's mesh is aligned to the global axis allowing each part of the machine to rotate and translate
-only one of the global $(arrow(x),arrow(y),arrow(z))$ axis allowing for the use of a single scalar $x$. 
+only one of the global $(arrow(x),arrow(y),arrow(z))$ axis allowing for the use of a single scalar $x$.
 Any of the described action's animation (@table:actions) can be represented by a set of scalar states, that is a real number
-representing either of rotation round an axis or translation along a local axis. 
+representing either of rotation round an axis or translation along a local axis.
 Additionally, each and every animation
 has a minimum and maximum bound $[mu_l, mu_u]$ where the scalar state is $mu_l lt.eq x lt.eq mu_u$.
 For the rest levers these are the angle in the resting position and
@@ -127,12 +123,12 @@ the cubic polynomial again slows down simulating a more graceful braking process
     #lq.diagram(
       width: 10cm,
       height: 5cm,
-      xlabel: $x$, 
+      xlabel: $x$,
       ylabel: $y$,
       legend: (position: left + top),
       margin: 10%,
-      lq.plot(xs, ys_lin, mark: none, stroke: 1pt + orange, label: text(weight: "regular", [linear])), 
-      lq.plot(xs, ys_cubic, mark: none, stroke: 1pt + blue, label: [cubic ease-in-out]), 
+      lq.plot(xs, ys_lin, mark: none, stroke: 1pt + orange, label: text(weight: "regular", [linear])),
+      lq.plot(xs, ys_cubic, mark: none, stroke: 1pt + blue, label: [cubic ease-in-out]),
       lq.plot(xs, ys_quint, mark: none, stroke: 1pt + teal, label: [quintic ease-in-out])
     )
   ],
@@ -224,7 +220,7 @@ that emit events such as levers that can be pulled. In this use case the lever
 provides conditions when the lever is pulled down, pushed up, pull down done and push up done.
 Each movable part of the machine implements custom conditions allowing to model
 dynamic and interwoven animation systems. It also allows animations to react to changes
-by subscribing to its own emitter. Such cases shall be used with great care as this 
+by subscribing to its own emitter. Such cases shall be used with great care as this
 can lead to an infinite loop when actions trigger themselves continuously
 preventing the event loop from advancing any further. It should also be avoided to
 form too long of event-action chains, as these may stretch the frame time by
@@ -238,13 +234,13 @@ Though it certainly is a future area worth improving on.
 
 === Event conditions
 
-Actions may be triggered by various types of events. For a scalar state four types 
+Actions may be triggered by various types of events. For a scalar state four types
 of conditions have proven useful during development. An event may be triggered when:
 
 - Starting an animation.
 - The end of an animation is reached.
 - Animation state changes (animation is ongoing).
-- A specific state value was overrun. 
+- A specific state value was overrun.
 
 The first two condition are quite simple. At the first increment of an animation, when
 a new target is set, the "started" event is triggered. This event runs only once for the
@@ -267,7 +263,7 @@ The situation can be seen in @fig:overrun-true.
     edge((0,1), (7,1), "|..|"),
     node((0,1.35), $mu_l$),
     node((7,1.35), $mu_u$),
-    
+
     edge((2,1),(5,1),">-<", stroke: 1pt),
 
     node((1,1), circle(fill: black, radius: 0.25em)),
@@ -299,7 +295,7 @@ increments but not at present.
     edge((0,1), (7,1), "|..|"),
     node((0,1.35), $mu_l$),
     node((7,1.35), $mu_u$),
-    
+
     edge((1.5,1),(4,1),">-<", stroke: 1pt),
 
     node((1,1), circle(fill: black, radius: 0.25em)),
@@ -323,7 +319,7 @@ It should be noted that at current time there is no method in place avoiding inf
 animations subsequently update their own state based on change events from other animations.
 An animations state is to be considered volatile, and it may be mutated by events emitted by other animations
 before, during and after an increment. Due to the nature of the frame time increment $delta t$
-All described events may trigger at the same increment when the $x_t - x_c lt delta t dot s$ as in this 
+All described events may trigger at the same increment when the $x_t - x_c lt delta t dot s$ as in this
 case the animation starts and stops with the same increments thus possibly triggering all events at once.
 
 === Synchronization attachments
@@ -369,13 +365,18 @@ The steps used to generate the operation steps is shown below:
     node-stroke: 1pt + black,
     edge-stroke: 1pt + black,
     node-corner-radius: 0.5em,
-    node((0,0), shape: rect, "Tokenize"),
-    node((1,0), "Shunting yard"),
-    node((2,0), "Interpret"),
-    node((3,0), "Squash"),
-    edge((0,0), (1,0), "->"),
-    edge((1,0), (2,0), "->"),
-    edge((2,0), (3,0), "->")
+    spacing: 1em,
+    node((0,0), fill: black, circle(fill: black, radius: 0.25em)),
+    node((2,0), shape: rect, "Tokenize"),
+    node((4,0), "Shunting yard"),
+    node((0,2), "Interpret"),
+    node((2,2), "Generate"),
+    node((4,2), "Squash"),
+    edge((0,0), (2,0), "->"),
+    edge((2,0), (4,0), "->"),
+    edge((4,0), "r,d,llllll,d,r", "->"),
+    edge((2,2), (4,2), "->"),
+    edge((0,2), (2,2), "->")
   )
   #v(1em)
   ], caption: [Architecture of linear notation transformer.]
@@ -385,7 +386,7 @@ The first step for producing postfix notation is to tokenize the calculation as 
 edits only a string of characters. Tokenization is performed by splitting the string
 using regular expressions and filtering out empty tokens. Each token is a string containing
 either an operator or an operand of which there are for now only positive integer numbers.
-The array of tokens preserves the order in which the tokens appear in the string. 
+The array of tokens preserves the order in which the tokens appear in the string.
 
 Sine infix notation does not translate well to calculator operations, the notation needs to be translated to
 the operations described in @table:actions. In the upcoming text these will also be referred to as instruction.
@@ -406,6 +407,10 @@ with lower precedence is found as token. This ensured that operators always foll
 and operators with higher precedence bind before those with a lower.
 The shunting yard algorithm can also detect mismatched parenthesis that is when parenthesis are
 left over on the operator stack or a right side parenthesis is unexpectedly found in the list of tokens.
+The shunting yard algorithm is also capable of handling functions with parameters and right associative
+operators such as exponentiation. Due to time constraints functions and exponentiation remain
+unimplemented in the solver. As a side note, any token that cannot be parsed by shunting yard
+or the interpreter will cause the solver to return in error.
 After converting to @RPN we are left with a notation that is straight forward to execute on paper.
 Which is the reason @RPN is often used to small calculator projects. All that is needed to do is to pop
 all numbers of the queue until an operator is found. Then the operator is applied to the last to
@@ -417,7 +422,6 @@ to perform the step on the Brunsviga. For equations of all kind this method assu
 that in reality would be a piece of paper since the calculator is not capable to storing a separate temporary
 value different from the result and input register. Steps generated for a chain of additions would
 look like the following:
-
 
 #figure(
   [
@@ -438,15 +442,12 @@ look like the following:
       edge((0,3), "r", "..>"),
       edge((1,1), "r,d,lll,d,r", "-|>"),
 
-      node((0,5), [*Interpret*]),
+      node((0,5), [*Interpret/Generate*]),
       edge((0,5), "r", "..>"),
-      node((1,5), [
-        load 3, add,
-
-        load 5, add,
-        
-        load 7, add
-      ]),
+      node((1,5), raw(block: true,
+     "load 3, add,
+load 5, add,
+load 7, add")),
       edge((1,3), "r,d,lll,d,r", "-|>"),
   )
   #v(1em)
@@ -466,4 +467,116 @@ calculations involving multiplication.
 
 === Multiplication algorithm
 
+Computation of products is not as straight forward as it might seem at first:
+every product of two integral numbers can be expressed as summing the first number
+as often as the absolute value of the second. For example:
+
+$
+    3 dot 4 = 3 + 3 + 3 + 3 = 12 \
+$
+
+However, this is only a practical approach when one of the factors is a small
+number, let's say smaller than ten. For products composed for much larger
+numbers the long multiplication algorithm can be used. With long multiplication
+the product of two integral numbers is split into several additions.
+Pseudocode of the implementation used in the interpreter can be found in @fig:long-mult.
+Since the algorithm in pseudocode is a bit hard on the eye let's explore how
+we do it on the Brunsviga. For this purpose we image two factors:
+$a = 785$ and $b = 56$. Very impractical to compute the product with the first method.
+Summing $785$ $56$ times in a row takes quite some time.
+First find the minimum and maximum value of the two. Then split the smaller of
+the two into the coefficients used in composing the decimal representation:
+
+$
+    x = 10^k dot c_k + 10^(k-1) dot c_(k-1) + dots + 10^0 dot c_0 quad k = floor(log_10(x)), k in NN, c in RR \
+    ==> 56 = 10^1 dot 5 + 10^0 dot 6
+$
+
+Then start iterating over the coefficients and keep an eye on the associated exponent
+value. The exponent is the amount the sled has to be shifted to the right
+and the coefficient is how many times the larger number ($785$ in this case) has
+to be added for each iteration. The algorithm then looks like the following:
+
+1. Find maximum and minimum of $a,b$.
+3. Load the larger number into the input register and clear the result.
+2. Iterate over decimal coefficients of the smaller number:
+    1. Shift the sled by the value of the exponent to the right.
+    2. The coefficient is the count by how often to add the input onto the result.
+    3. Reset the sled.
+
 == Programmable application interface
+
+Besides solving calculations and interactivity, there is no option to
+run more complex algorithms on the machine besides doing all steps manually.
+For this purpose a text editor for custom scripts is added as
+a secondary option to the tab panel where the calculation solver resides.
+All operations shown in table @table:actions have their equivalent
+interface function in the Typescript source:
+
+#figure(raw(lang: "typescript", read("res/ts-api.ts").trim()), caption: [
+    Stub of the Brunsviga 13 RK programmatic class interface.
+])
+
+These are functions that allow direct interaction with the model, animations
+and its state. Notice the usage of the `async` keyword. This due to the fact,
+that these functions wait until the animation they trigger have completed.
+Calling methods can decide whether to await them or not.
+Functions that retrieve a value from the register do not need to wait for anything
+since they trigger no animations or state change.
+
+=== Moonshine
+
+The goal is now to abstract this interface with its asynchronous nature behind
+a scripting language that is, based on the authors' opinion, easier to read and
+write, especially for non-programmers: Lua. The Lua programming language
+is a "powerful, efficient, lightweight, embeddable scripting language" @Lua_About.
+Lua has a simple syntax and is considerably easier conceptually than Typescript
+with its static typing and strong object orientation but convoluted evolution.
+Additionally, the lightweight nature of the Lua interpreter makes it an
+excellent choice to embed into the project since its very small and fast.
+The Lua runtime offers a comprehensive list of functions to interact with the
+running Lua instance. #link("https://github.com/ceifa/wasmoon", "Wasmoon")
+#footnote("https://github.com/ceifa/wasmoon")
+is chosen as the binding for Typescript since it packages the Lua interpreter
+as precompiled @WASM making it much faster in execution than Lua interpreter
+written in Javascript. Beneficial is also the libraries feature to automatically
+wrap Typescript classes and global functions in order to expose them directly
+to any Lua scripts. This comes in handy when accessing the Typescript interface.
+
+=== Lua abstraction
+
+While it is possible to pass the Brunsviga class as a global to the Lua script
+directly there are several disadvantages to this method. First, since
+most functions in the Typescript interface are asynchronous the author of Lua
+scripts would need to call `await()` after every call except those reading
+register values to avoid messing up the state of the machine. Additionally,
+the Lua script has access to all other kinds of methods from the class
+which undesired and makes a messy appeal.
+In order to circumvent these issues a separate class is implemented in Typescript
+called the `Brunsviga13rkLuaAPI`. It acts as an intermediate between
+the raw Brunsviga interface Lua. It serves the purpose of only exposing functions
+to Lua scripts that won't break the simulation and perform some type safety on top.
+However, users still need to call `await()` for every asynchronous functions.
+For this reason another abstraction is generated. This time in pure Lua.
+
+#figure([
+    #diagram(
+        node-stroke: 1pt + black,
+        spacing: 0pt,
+        node((0,0), width: 5em, shape: triangle, "Lua API"),
+        node((0,1), width: 9.95em, shape: trapezium.with(angle: 70deg), "Typescript API"),
+        node((0,2), width: 14.6em, shape: trapezium.with(angle: 70deg), "Brunsviga API"),
+        node((2, 0), stroke: none, width: 18em, align(left)[#h(3em) Await futures]),
+        node((2, 1), stroke: none, width: 18em, align(left)[#h(3em) Type safety + sanatisation]),
+        node((2, 2), stroke: none, width: 18em, align(left)[#h(3em) Abstraction of animation state]))
+    #v(1em)
+], caption: [Layers of interface abstractions and their purpose.])
+
+This is the actual interface scriptwriter are meant to interact with.
+It wraps all Typescript functions of the `Brunsviga13rkLuaAPI` by native
+Lua functions and automatically calls `await()` were necessary. While
+authors are discouraged from directly using the `Brunsviga13rkLuaAPI` instead
+of the native Lua abstraction it is still possible but should be avoided.
+@fig:lua-template shows the template code used to give an initial sample for
+a working Lua script. This script loads the Lua interface in the first line
+and after resetting the machine calculates the difference between 79 and 8.
