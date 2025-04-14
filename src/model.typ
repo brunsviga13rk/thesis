@@ -39,7 +39,7 @@ multiple such steps into more complex procedures. Component origins are properly
 mesh and require no further tweaks after importing the model. All left to do is to develop an animation system capable of
 handling the bespoken tasks.
 
-== Event driven animations
+== Event driven animations <sec:events>
 
 In order to model single as well as multistep animations an event driven architecture promises relative simplicity
 in both implementation and usage. The idea is for animations to "emit" events during specific stages. These might occur
@@ -330,9 +330,9 @@ For this purpose the scalar animation state can synchronize itself to another an
 by attaching. In this case the animation synchronizes its own state (not the advancement factor)
 to the state increment of the target animation. In this case it may happen, that the animations state
 overflows its boundary. Increments by $delta t$ are disabled in this mode.
-Upon releasing from the synchronization all targets are cleared and the animation is stalled.
+Upon releasing from the synchronization all targets are cleared, and the animation is stalled.
 In this situation its state may too be outside its boundary interval.
-However when animating towards the next target the animation will automatically move
+However, when animating towards the next target the animation will automatically move
 back into its valid range of operation.
 
 == Solving calculations

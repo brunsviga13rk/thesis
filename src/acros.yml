@@ -80,3 +80,6 @@ RPN:
 WASM:
     short: WASM
     long: Web Assembly
+HDR:
+    short: HDR
+    long: High Dynamic Range
