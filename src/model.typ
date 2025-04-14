@@ -72,7 +72,7 @@ by an advance factor $0 lt.eq t lt.eq 1$. The current state of the animation is 
 
 $
   overline(x) = (1 - t s) dot x_c + t s x_t; quad x_c, x_t in [mu_l, mu_u]
-$
+$ <eq:state-update>
 
 This is essentially a linear interpolation depending on the advance factor from the current state of the start state animation $x_c$ and
 a specific target state $x_t$ both of which are in between the minimum and maximum boundary. Both $x_c,x_t$ are constant during
@@ -90,19 +90,19 @@ to take place. This leads to lower speed at the start of motion. Inertia also ap
 the kinetic energy of the object in combination with its inertia will continue to push against the stopping force thus
 gracefully stopping the object. Linear trajectories do not accurately model this behavior as motion occurs with constant speed
 leading to abrupt starts and stops. Such animations do not only look unnatural but are also harder to follow with the eye.
-In order to model the effect of inertia and smoothen the animation the initial state blending (11) is changed by performing a
+In order to model the effect of inertia and smoothen the animation the initial state blending (@eq:state-update) is changed by performing a
 non-linear transformation $g$, called easing function, around the advancement product $t s$:
 
 $
   overline(x) = (1 - g(t s)) dot x_c + g(t s) dot x_t; quad x_c, x_t in [mu_l, mu_u]
-$
+$ <eq:eased-interpolation>
 
 This transformation introduces non-linear qualities to the animation state resulting in non-uniform speed of the animation.
 A classical formula for this is the cubic ease-in-out polynomial:
 
 $
   g(t) = 3t^2 - 2t^3
-$
+$ <eq:cubic-ease-in-out>
 
 The effect of which can be seen in @fig:interplation-functions in comparison to the linear angle bisector.
 The cubic polynomial introduces a slowdown at the start where $t s lt 0.5$ simulating inertia when accelerating.
@@ -132,15 +132,16 @@ the cubic polynomial again slows down simulating a more graceful braking process
       legend: (position: left + top),
       margin: 10%,
       lq.plot(xs, ys_lin, mark: none, stroke: 1pt + orange, label: text(weight: "regular", [linear])), 
-      lq.plot(xs, ys_cubic, mark: none, stroke: 1pt + blue, label: [cubic polynomial]), 
-      lq.plot(xs, ys_quint, mark: none, stroke: 1pt + teal, label: [quintic polynomial])
+      lq.plot(xs, ys_cubic, mark: none, stroke: 1pt + blue, label: [cubic ease-in-out]), 
+      lq.plot(xs, ys_quint, mark: none, stroke: 1pt + teal, label: [quintic ease-in-out])
     )
   ],
   caption: [Different interpolation functions.]
 ) <fig:interplation-functions>
 
 
-By using (12) to compute the animation state, the resulting action looks smoother and more natural.
+By using introducing @eq:cubic-ease-in-out into @eq:eased-interpolation to compute the animation state,
+the resulting action looks smoother and more natural.
 Easing functions of higher degree may be used to model higher inertia such as the quintic ease
 introducing higher computational complexity. Other common easing functions can be found
 #link("https://easings.net/")[here]. Cubic ease-in-out provides the best tradeoff between smooth
