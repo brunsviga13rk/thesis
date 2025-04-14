@@ -83,7 +83,7 @@ frame $delta t$ multiplied by a timescale factor $s$. Assuming $delta t$ to be i
 motion type or boundary requires exactly one second to pass. The animation can be stretched or compressed temporally by the
 timescale $s$. This allows to precisely know when an animation will end which is useful for timing animations later on.
 
-== Easing state
+=== Easing state
 
 Performed linear motion is rarely perceived as being smooth. In the real world acceleration must overcome inertia for motion
 to take place. This leads to lower speed at the start of motion. Inertia also applies when stopping an object where
@@ -149,6 +149,18 @@ transition and computational overhead.
 
 === Publish-Subscribe event model
 
+Management of events is based on the publish-subscriber pattern. Actions are custom functions
+run by an `EventHandler`.
+`EventHandlers` may manage any number of actions but only a single condition. A condition specifies
+an additional situation that must be satisfied for all the actions to be run. Its definition is based
+on custom interfaces that are implemented for each `EventEmitter`.
+Every type of event emitter specifies its own set of custom conditions.
+`EventEmitter` also generate events. An event can carry custom data, usually produced by
+the cause of the event. `EventHandler` discover available emitter through a broker interface
+to which they can subscribe to specific events.
+@fig:event-architecture shows a class diagram highlighting the conceptual architecture of
+the software model.
+
 #let def-class(type, name, members, functions) = [
     #if type != none [
       _\<\<#type\>\>_
@@ -200,8 +212,132 @@ transition and computational overhead.
 
       #v(5mm)
   ],
-  caption: [Classdiagram of event model.]
-)
+  caption: [Classdiagram of the event model.]
+) <fig:event-architecture>
+
+When emitter trigger events, all subscribed handler receive information about these events.
+Their associated condition then decides based on the custom data provided by the event if
+the action should run. By default, the condition is of type tautology which is always true
+and will regardless of event data run all actions.
+The abstract classes `EventEmitter` and `EventBroker` are to be implemented by classes
+that emit events such as levers that can be pulled. In this use case the lever
+provides conditions when the lever is pulled down, pushed up, pull down done and push up done.
+Each movable part of the machine implements custom conditions allowing to model
+dynamic and interwoven animation systems. It also allows animations to react to changes
+by subscribing to its own emitter. Such cases shall be used with great care as this 
+can lead to an infinite loop when actions trigger themselves continuously
+preventing the event loop from advancing any further. It should also be avoided to
+form too long of event-action chains, as these may stretch the frame time by
+consuming significant processing time thus lagging out the event loop.
+Its vulnerability to overload and self triggering actions is a significant drawback of this system.
+A possible solution might be to dispatch actions asynchronously, although this does not protect from
+overloading the scheduler. A better option might be to run the event processing code in a separate web worker.
+However this would introduce a considerable overhead for transferring state information between web workers.
+While this system is certainly not foolproof it allows building intricate animation systems with relative ease.
+Though it certainly is a future area worth improving on.
+
+=== Event conditions
+
+Actions may be triggered by various types of events. For a scalar state four types 
+of conditions have proven useful during development. An event may be triggered when:
+
+- Starting an animation.
+- The end of an animation is reached.
+- Animation state changes (animation is ongoing).
+- A specific state value was overrun. 
+
+The first two condition are quite simple. At the first increment of an animation, when
+a new target is set, the "started" event is triggered. This event runs only once for the
+first increment of an animation targeting a value. A "stopped" event is triggered when
+the animation state has reached the target value and the advancement factor is one.
+An event may also be triggered at any increment of a given animation. Much more intricate
+animations require an overrun condition. This condition is true whenever the animation
+passed by a specific value. Useful when a pulled lever starts to pull down a second lever
+halfway through its animation. The overrun condition is checked each time an increment
+in the animation occurs. Every animation increment advances the state by a certain interval
+ranging from the previous animation state $overline(x)_0$ to the next $overline(x)_1$
+as specified by the transformation of the advancement factor by $delta t$.
+In case the overrun variable $h$ is inside this interval, then the condition is true,
+as the animation has "stepped over" by the trigger value.
+The situation can be seen in @fig:overrun-true.
+
+#figure([
+  #diagram(
+    edge-stroke: 1pt,
+    edge((0,1), (7,1), "|..|"),
+    node((0,1.35), $mu_l$),
+    node((7,1.35), $mu_u$),
+    
+    edge((2,1),(5,1),">-<", stroke: 1pt),
+
+    node((1,1), circle(fill: black, radius: 0.25em)),
+    node((1,1.35), $x_c$),
+
+    node((6,1), circle(fill: black, radius: 0.25em)),
+    node((6,1.35), $x_t$),
+
+    node((2,1.35), $overline(x)_0$),
+    node((5,1.35), $overline(x)_1$),
+
+    node((3.5,1), "|"),
+    node((3.5,1.35), $h$),
+
+    edge((2.1,0.8), (4.9,0.8), "-->", bend: 25deg),
+    node((3.5,0.25), $delta t$))
+  #v(1em)
+], caption: [Overrun condition met for $h$ when animating between $x_c$ and $x_t$.]) <fig:overrun-true>
+
+For all other cases, when $h$ is outside the interval $[overline(x)_0,overline(x)_1]$ the overrun condition
+is false since the overrun value $h$ as neither already been passed nor will be passed at some point in the future which
+may also be never, when $h$ beyond the target value $x_t$.
+@fig:overrun-false shows a situation in which an animation will trigger the overrun condition in the next
+increments but not at present.
+
+#figure([
+  #diagram(
+    edge-stroke: 1pt,
+    edge((0,1), (7,1), "|..|"),
+    node((0,1.35), $mu_l$),
+    node((7,1.35), $mu_u$),
+    
+    edge((1.5,1),(4,1),">-<", stroke: 1pt),
+
+    node((1,1), circle(fill: black, radius: 0.25em)),
+    node((1,1.35), $x_c$),
+
+    node((6,1), circle(fill: black, radius: 0.25em)),
+    node((6,1.35), $x_t$),
+
+    node((1.5,1.35), $overline(x)_0$),
+    node((4,1.35), $overline(x)_1$),
+
+    node((5,1), "|"),
+    node((5,1.35), $h$),
+
+    edge((1.6,0.8), (3.9,0.8), "-->", bend: 25deg),
+    node((2.75,0.25), $delta t$))
+  #v(1em)
+], caption: [Overrun condition not met for $h$ when animating between $x_c$ and $x_t$.]) <fig:overrun-false>
+
+It should be noted that at current time there is no method in place avoiding infinite recursion when
+animations subsequently update their own state based on change events from other animations.
+An animations state is to be considered volatile, and it may be mutated by events emitted by other animations
+before, during and after an increment. Due to the nature of the frame time increment $delta t$
+All described events may trigger at the same increment when the $x_t - x_c lt delta t dot s$ as in this 
+case the animation starts and stops with the same increments thus possibly triggering all events at once.
+
+=== Synchronization attachments
+
+A common occurrence when connecting animations is one animation state following the increments of another.
+This happens when a mechanical part carries or pushes another one.
+For this purpose the scalar animation state can synchronize itself to another animation
+by attaching. In this case the animation synchronizes its own state (not the advancement factor)
+to the state increment of the target animation. In this case it may happen, that the animations state
+overflows its boundary. Increments by $delta t$ are disabled in this mode.
+Upon releasing from the synchronization all targets are cleared and the animation is stalled.
+In this situation its state may too be outside its boundary interval.
+However when animating towards the next target the animation will automatically move
+back into its valid range of operation.
 
 == Solving calculations
 
