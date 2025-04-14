@@ -15,7 +15,7 @@ The following operations are available:
 #figure(
   table(
     columns: (2.5cm, 1fr),
-    table.header([], [Action and description]),
+    table.header([Action], [Description]),
     image("res/input.svg", width: 2cm), [Rotate input sprockets, sets the value of the input register.],
     image("res/addition.svg", width: 2cm), [Clockwise rotation of the operaiton crank, adds input register onto result register and increments counter.],
     image("res/subtract.svg", width: 2cm), [Counter-clockwise rotation of the operaiton crank, subtracts input register from result register and increments counter.],
