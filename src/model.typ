@@ -341,4 +341,129 @@ back into its valid range of operation.
 
 == Solving calculations
 
+A handy feature of the simulation is to automatically produce all the steps necessary to perform
+a certain calculation. Not everybody is familiar with the handling of the calculator. Thus offering
+easy verification of the steps undertaken to perform a certain calculation is quite useful.
+As such to goal is to transform calculations from infix notation to a list of operations that can directly
+be executed by the user on a physical machine or in the simulation itself.
+
+=== Notation transformer
+
+By convention most people use infix notation to write down equations. Infix notation
+places two operands around the operator. Example calculation given in @eq:infix.
+In addition, terms may be surrounded parenthesis.
+
+$
+  3 * (7 + 8)
+$ <eq:infix>
+
+Every operator as a certain precedence. Operators with higher precedence will bind operands towards them.
+In the example $3 + 4 * 8$ the multiplication has higher precedence than the addition, thus binding both operands
+of $4,8$ meaning first we must compute $4 * 8$ onto which we can add $3$. A list of operator precedence can be found in
+@table:precedence. This table also shows the operators implemented in the simulation with one exception being division.
+The steps used to generate the operation steps is shown below:
+
+#figure(
+  [
+    #diagram(
+    node-stroke: 1pt + black,
+    edge-stroke: 1pt + black,
+    node-corner-radius: 0.5em,
+    node((0,0), shape: rect, "Tokenize"),
+    node((1,0), "Shunting yard"),
+    node((2,0), "Interpret"),
+    node((3,0), "Squash"),
+    edge((0,0), (1,0), "->"),
+    edge((1,0), (2,0), "->"),
+    edge((2,0), (3,0), "->")
+  )
+  #v(1em)
+  ], caption: [Architecture of linear notation transformer.]
+)
+
+The first step for producing postfix notation is to tokenize the calculation as the user
+edits only a string of characters. Tokenization is performed by splitting the string
+using regular expressions and filtering out empty tokens. Each token is a string containing
+either an operator or an operand of which there are for now only positive integer numbers.
+The array of tokens preserves the order in which the tokens appear in the string. 
+
+Sine infix notation does not translate well to calculator operations, the notation needs to be translated to
+the operations described in @table:actions. In the upcoming text these will also be referred to as instruction.
+The first step in producing these instructions is to compile the infix notation to @RPN otherwise known
+as postfix notation. In this notation the operands follow their operator. @eq:infix would look like the following
+compiled to postfix:
+
+$
+  7 space 8 space + space 3 space *
+$
+
+Parenthesis vanish and only their effect on operator precedence is left behind.
+Converting to @RPN is done by applying the shunting yard algorithm (@appendix:shunting-yard)
+to the list of tokens. This algorithm works by pushing the operator tokens (including parenthesis)
+onto a separate temporary stack and pushing numbers to the output queue.
+Operators with higher precedence are moved from the stack to the output when an operator
+with lower precedence is found as token. This ensured that operators always follow their operands
+and operators with higher precedence bind before those with a lower.
+The shunting yard algorithm can also detect mismatched parenthesis that is when parenthesis are
+left over on the operator stack or a right side parenthesis is unexpectedly found in the list of tokens.
+After converting to @RPN we are left with a notation that is straight forward to execute on paper.
+Which is the reason @RPN is often used to small calculator projects. All that is needed to do is to pop
+all numbers of the queue until an operator is found. Then the operator is applied to the last to
+operand popped from the queue of which the result is pushed back in the queue. After reading all tokens
+from the queue the last touched number is the result of the calculation. This can easily be implemented
+with a stack based machine. Here comes the interpreter into place. The interpreter much like a real calculator
+steps through the queue computing the result. Along this way the interpreter generates the instruction required
+to perform the step on the Brunsviga. For equations of all kind this method assumes temporary storage
+that in reality would be a piece of paper since the calculator is not capable to storing a separate temporary
+value different from the result and input register. Steps generated for a chain of additions would
+look like the following:
+
+
+#figure(
+  [
+    #diagram(
+      spacing: 2em,
+      edge-stroke: 1pt + black,
+      node-corner-radius: 0.5em,
+
+      node((0,0), "3 + 5 + 7 (input string)"),
+
+      node((0,1), [*Tokenize*]),
+      node((1,1), ${3,+,5,+,7}$),
+      edge((0,1), "r", "..>"),
+      edge((0,0), "l,d,r", "-|>"),
+
+      node((0,3), [*Shunting yard*]),
+      node((1,3), ${3,5,+,7,+}$),
+      edge((0,3), "r", "..>"),
+      edge((1,1), "r,d,lll,d,r", "-|>"),
+
+      node((0,5), [*Interpret*]),
+      edge((0,5), "r", "..>"),
+      node((1,5), [
+        load 3, add,
+
+        load 5, add,
+        
+        load 7, add
+      ]),
+      edge((1,3), "r,d,lll,d,r", "-|>"),
+  )
+  #v(1em)
+  ], caption: [Example transformation of a sum.]
+)
+
+The most intricate step is the interpreter that performs the following evaluation for
+any given operation: in case the first operator is a subtraction or addition, the first operand
+is loaded into the input register of the machine. Afterward, the first value is added onto the result register.
+Then the second operand is loaded onto the input register and added or subtracted depending on the operator onto
+the result register. In case the operator is not the first one to be processed, the first operand is assumed to already
+loaded into the result. Then the second operand is loaded into the input register and either added or subtracted from the result.
+Optionally before generating the instructions for the first operation all registers may be cleared.
+Not shown is the squash operation which reduces the resulting list of instructions by merging redundant operations together
+like clearing registers multiple times in a row. This step is more useful with more complex
+calculations involving multiplication.
+
+=== Multiplication algorithm
+
 == Programmable application interface
