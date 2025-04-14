@@ -313,7 +313,7 @@ increments but not at present.
     edge((1.6,0.8), (3.9,0.8), "-->", bend: 25deg),
     node((2.75,0.25), $delta t$))
   #v(1em)
-], caption: [Overrun condition not met for $h$ when animating between $x_c$ and $x_t$.]) <fig:overrun-false>
+], caption: [Overrun condition not met when animating between $x_c$ and $x_t$.]) <fig:overrun-false>
 
 It should be noted that at current time there is no method in place avoiding infinite recursion when
 animations subsequently update their own state based on change events from other animations.

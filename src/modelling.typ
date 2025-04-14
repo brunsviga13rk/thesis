@@ -395,7 +395,7 @@ sample implementation for computing stretching.
             image("res/uv-arial-stretch.png", height: 11em),
             image("res/scala.svg", height: 11em))
     ),
-    caption: [UV-map of the Brunsviga model with estimated angle and area stretch.]
+    caption: [UV-map of the Brunsviga with estimated angle and area stretch.]
 ) <figure:uvmap>
 
 As can be seen in @figure:uvmap, the current implementation of the UV-map has low angular stretch
@@ -479,7 +479,7 @@ through the object.
 
 #figure(
     box(inset: (bottom: 0.5cm), image("res/bsdf.png", width: 40%)),
-  caption: [Visual guide to the bidirectional scattering distribution functions @Jurohi2006.],
+  caption: [Guide to the bidirectional scattering distribution functions @Jurohi2006.],
 ) <figure:bsdf>
 
 More advanced materials making use of additional interactions such as subsurface scattering
@@ -533,7 +533,7 @@ engine Cycles. Detailed explanation of Blenders material properties can be found
         image("res/render_shader-nodes_shader_principled-metallic.jpg"),
         image("res/render_shader-nodes_shader_principled-roughness.jpg")
     )),
-    caption: [Metalic (above) and roughness (below) on a scale from zero to one @BlenderManual_PrincipledBSDF.]
+    caption: [Metalic (above) and roughness (below) on from zero to one @BlenderManual_PrincipledBSDF.]
 ) <figure:shading-properties>
 
 Normal maps are applied in addition to boost macro level bumps on the surface
@@ -696,7 +696,7 @@ between a reference image and computer generated image of the digital recreation
 
 #figure(
     grid(columns: (1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%)),
-    caption: [Arrangement of a picture (right) and computer generated model (left).]) <fig:arrangement>
+    caption: [Picture (right) and computer generated model (left).]) <fig:arrangement>
 
 The left side depicts a picture taken of a physical machine. On the right side is the path traced digital recreation
 rendered with Cycles. Lightning and perspective are at mismatch, however they are related close enough to determine
@@ -864,7 +864,7 @@ remains unused but removes an entire image texture as two properties are encoded
 
         #place(horizon + right, dy: -0.25cm, image("res/materials.png", width: 5cm))
         #v(1em)],
-    caption: [Material composition graph from baked input to rendered result.])
+    caption: [Material composition graph from baked to rendered result.])
     <fig:material-composition>
 
 The normal map is passed through without any need for modification. Out of the five textures only
