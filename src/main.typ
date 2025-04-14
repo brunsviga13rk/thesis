@@ -43,7 +43,7 @@
     // translated version of abstract, only used in case language is not english
     summary: none,
     preface: none,
-    appendices: include("appendix.typ"),
+    appendices: include "appendix.typ",
     keywords: (
       "IT",
       "Web",
@@ -55,7 +55,6 @@
     ),
     bibliography: bibliography("refs.bib"),
     glossary: yaml("acros.yml"),
-    appendices: include("appendix.typ")
   ),
   style: (
     header: (
