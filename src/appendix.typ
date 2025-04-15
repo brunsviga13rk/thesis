@@ -93,3 +93,9 @@ algorithms used by different raster file formats.
 #figure(raw(lang: "lua", read("res/example.lua").trim()), caption: [
     Template program for the Lua editor.
 ]) <fig:lua-template>
+
+== Typescript interface stub <appendix:ts-stub>
+
+#figure(raw(lang: "typescript", read("res/ts-api.ts").trim()), caption: [
+    Stub of the Brunsviga 13 RK programmatic class interface.
+])

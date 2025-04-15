@@ -193,7 +193,7 @@ the software model.
 
       node((0,1.25), def-class(none, "Tautology", none, none), shape: rect, name: <tautology>),
       node((0,0.7), def-class("interface", "Conditional", none, ("+ compare()")),  shape: rect, name: <conditional>),
-      node((1,0.7), def-class("abstract", "EventHandler", none, none), shape: rect, name: <handler>),
+      node((1,0.7), def-class("abstract", "EventHandler", ("# Condition c", "#EventAction action"), none), shape: rect, name: <handler>),
       node((1,1.5), def-class("abstract", "EventEmitter", ("# Object actor", "# List<EventHandler> handler"), none), shape: rect, name: <emitter>),
       node((0.3,0), def-class("interface", "EventAction", none, none), shape: rect, name: <action>),
       node((1.7,0), def-class("interface", "EventBroker", none, ("getEmitter(): EventEmitter")), shape: rect, name: <broker>),
@@ -335,6 +335,8 @@ In this situation its state may too be outside its boundary interval.
 However, when animating towards the next target the animation will automatically move
 back into its valid range of operation.
 
+#pagebreak()
+
 == Solving calculations
 
 A handy feature of the simulation is to automatically produce all the steps necessary to perform
@@ -368,7 +370,7 @@ The steps used to generate the operation steps is shown below:
     spacing: 1em,
     node((0,0), fill: black, circle(fill: black, radius: 0.25em)),
     node((2,0), shape: rect, "Tokenize"),
-    node((4,0), "Shunting yard"),
+    node((4,0), "Parsing"),
     node((0,2), "Interpret"),
     node((2,2), "Generate"),
     node((4,2), "Squash"),
@@ -387,8 +389,7 @@ edits only a string of characters. Tokenization is performed by splitting the st
 using regular expressions and filtering out empty tokens. Each token is a string containing
 either an operator or an operand of which there are for now only positive integer numbers.
 The array of tokens preserves the order in which the tokens appear in the string.
-
-Sine infix notation does not translate well to calculator operations, the notation needs to be translated to
+Since infix notation does not translate well to calculator operations, the notation needs to be translated to
 the operations described in @table:actions. In the upcoming text these will also be referred to as instruction.
 The first step in producing these instructions is to compile the infix notation to @RPN otherwise known
 as postfix notation. In this notation the operands follow their operator. @eq:infix would look like the following
@@ -400,7 +401,8 @@ $
 
 Parenthesis vanish and only their effect on operator precedence is left behind.
 Converting to @RPN is done by applying the shunting yard algorithm (@appendix:shunting-yard)
-to the list of tokens. This algorithm works by pushing the operator tokens (including parenthesis)
+to the list of tokens @Norvell_1999.
+This algorithm works by pushing the operator tokens (including parenthesis)
 onto a separate temporary stack and pushing numbers to the output queue.
 Operators with higher precedence are moved from the stack to the output when an operator
 with lower precedence is found as token. This ensured that operators always follow their operands
@@ -511,12 +513,7 @@ run more complex algorithms on the machine besides doing all steps manually.
 For this purpose a text editor for custom scripts is added as
 a secondary option to the tab panel where the calculation solver resides.
 All operations shown in table @table:actions have their equivalent
-interface function in the Typescript source:
-
-#figure(raw(lang: "typescript", read("res/ts-api.ts").trim()), caption: [
-    Stub of the Brunsviga 13 RK programmatic class interface.
-])
-
+interface function in the Typescript source @appendix:ts-stub.
 These are functions that allow direct interaction with the model, animations
 and its state. Notice the usage of the `async` keyword. This due to the fact,
 that these functions wait until the animation they trigger have completed.
@@ -524,7 +521,7 @@ Calling methods can decide whether to await them or not.
 Functions that retrieve a value from the register do not need to wait for anything
 since they trigger no animations or state change.
 
-=== Moonshine
+=== Integration
 
 The goal is now to abstract this interface with its asynchronous nature behind
 a scripting language that is, based on the authors' opinion, easier to read and
@@ -539,9 +536,11 @@ running Lua instance. #link("https://github.com/ceifa/wasmoon", "Wasmoon")
 #footnote("https://github.com/ceifa/wasmoon")
 is chosen as the binding for Typescript since it packages the Lua interpreter
 as precompiled @WASM making it much faster in execution than Lua interpreter
-written in Javascript. Beneficial is also the libraries feature to automatically
+written in JavaScript. Beneficial is also the libraries feature to automatically
 wrap Typescript classes and global functions in order to expose them directly
 to any Lua scripts. This comes in handy when accessing the Typescript interface.
+
+#pagebreak()
 
 === Lua abstraction
 

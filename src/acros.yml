@@ -43,7 +43,6 @@ OpenGLES2:
 UV:
     short: UV
     long: UV
-    desc: Refers to the X "U" and Y "V" coordinate of a texture in texel space.
 PBR:
     short: PBR
     long: Physically Based Rendering
@@ -83,3 +82,12 @@ WASM:
 HDR:
     short: HDR
     long: High Dynamic Range
+FXAA:
+    short: FXAA
+    long: Fast approXimate AntiAliasing
+TAA:
+    short: TAA
+    long: Temporal AntiAliasing
+SSAO:
+    short: SSAO
+    long: Screen Space Ambient Occlusion

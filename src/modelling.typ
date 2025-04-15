@@ -4,6 +4,8 @@
 #import "@preview/fletcher:0.5.7" as fletcher: diagram, node, edge
 #import fletcher.shapes: rect
 
+#pagebreak()
+
 = Digital twin <section:digital_twin>
 
 At the core of this entire project is the simulation of a real-world physical
@@ -322,7 +324,7 @@ Materials for the polygon model. Afterward, textures
 of each of the materials major properties will be extracted to individual images
 enabling portable and detailed shading for the final model.
 
-=== Texture mapping
+=== Texture mapping <sec:unwrapping>
 
 Texturing is the process of mapping a two-dimensional image (texture) onto the
 surface an object (mostly polygon meshes) by transforming the three-dimensional
@@ -642,7 +644,7 @@ Therefore the area of sampling shall be one with the least amount of specular in
 It can be used as the base color for either metallic or dielectric surfaces but yields no further
 detail about metalness, roughness or normal parameters.
 
-=== Experience based model
+=== Experience based method
 
 More advanced material properties such as non-homogenous diffuse color, metallic, roughness and normal offset
 are approximated with a set of experience based formulas. These formulas are based on a couple of functions
