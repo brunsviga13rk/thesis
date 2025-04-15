@@ -31,9 +31,9 @@ The following operations are available:
 to offer complete functionality of the machine. Most of these actions are simple affine transformations applied to specific
 parts of the machine like rotation or translation around a set origin. For example, pulling the reset levers requires
 rotation around the mounting axis of the lever by a certain amount of degree. After completing the rotation in one direction,
-the lever is to rotate back in the opposite direction to its origin position. Implementation of the operation crank requires
-a multistep operation, as first, the knob holding the input sprocket locked must be extruded only then can the crank be rotated.
-When completing the full rotation the knob must be inserted back in locking position in order to proceed with further operation.
+the lever rotates back in the opposite direction to its origin position. Implementation of the operation crank requires
+a multistep operation, as first, the knob holding the input sprocket locked must be extruded. Only then can the crank be rotated.
+When completing a full rotation the knob must be inserted back in locking position in order to proceed with further operation.
 The simulation must be capable of the above affine rotary and transitive motions around part origins as well as to combine
 multiple such steps into more complex procedures. Component origins are properly defined during the modelling phase of
 mesh and require no further tweaks after importing the model. All left to do is to develop an animation system capable of
@@ -51,14 +51,14 @@ the logic over multiple files.
 
 === Action formulation
 
-For ease of use the machine's mesh is aligned to the global axis allowing each part of the machine to rotate and translate
-only one of the global $(arrow(x),arrow(y),arrow(z))$ axis allowing for the use of a single scalar $x$.
+For ease of use the machine's mesh is aligned to the global coordinate system allowing each part of the machine to rotate and translate
+only on one of the global $(arrow(x),arrow(y),arrow(z))$ axis allowing for the use of a single scalar $x$.
 Any of the described action's animation (@table:actions) can be represented by a set of scalar states, that is a real number
 representing either of rotation round an axis or translation along a local axis.
 Additionally, each and every animation
 has a minimum and maximum bound $[mu_l, mu_u]$ where the scalar state is $mu_l lt.eq x lt.eq mu_u$.
-For the rest levers these are the angle in the resting position and
-the angle the lever is rotated when fully pulled back.
+For the reset levers these are the angle when in resting position and
+the angle the lever is in when rotated fully pulled back.
 For these reasons an animation simply controls the transition from one end of the scalar bound to the other and vice versa.
 This transformation is done at each step of the event loop, incrementally mutating the current state towards either end of the
 bound. Computationally this is done by interpolating between the lower and upper bound of the animation.
@@ -70,12 +70,12 @@ $
   overline(x) = (1 - t s) dot x_c + t s x_t; quad x_c, x_t in [mu_l, mu_u]
 $ <eq:state-update>
 
-This is essentially a linear interpolation depending on the advance factor from the current state of the start state animation $x_c$ and
+This is essentially a linear interpolation depending on the advance factor from the current state of the start state $x_c$ and
 a specific target state $x_t$ both of which are in between the minimum and maximum boundary. Both $x_c,x_t$ are constant during
 an animation. This is from now on referred to as state blending or easing.
 The animation state itself is not incremented directly in order to achieve precise control over the duration of the animation.
 Each time the event loop processes an animation step the advance factor $t$ is incremented by the delta time of the current and last
-frame $delta t$ multiplied by a timescale factor $s$. Assuming $delta t$ to be in seconds every animation, regardless of
+frame $delta t$ multiplied by a timescale factor $s$. Assuming $delta t$ to be in seconds, every animation, regardless of
 motion type or boundary requires exactly one second to pass. The animation can be stretched or compressed temporally by the
 timescale $s$. This allows to precisely know when an animation will end which is useful for timing animations later on.
 
@@ -136,9 +136,9 @@ the cubic polynomial again slows down simulating a more graceful braking process
 ) <fig:interplation-functions>
 
 
-By using introducing @eq:cubic-ease-in-out into @eq:eased-interpolation to compute the animation state,
+By introducing @eq:cubic-ease-in-out into @eq:eased-interpolation to compute the animation state,
 the resulting action looks smoother and more natural.
-Easing functions of higher degree may be used to model higher inertia such as the quintic ease
+Easing functions of higher degree may be used to model higher inertia such as the quintic ease function but also
 introducing higher computational complexity. Other common easing functions can be found
 #link("https://easings.net/")[here]. Cubic ease-in-out provides the best tradeoff between smooth
 transition and computational overhead.
@@ -146,7 +146,7 @@ transition and computational overhead.
 === Publish-Subscribe event model
 
 Management of events is based on the publish-subscriber pattern. Actions are custom functions
-run by an `EventHandler`.
+run by a `EventHandler`.
 `EventHandlers` may manage any number of actions but only a single condition. A condition specifies
 an additional situation that must be satisfied for all the actions to be run. Its definition is based
 on custom interfaces that are implemented for each `EventEmitter`.
@@ -193,7 +193,7 @@ the software model.
 
       node((0,1.25), def-class(none, "Tautology", none, none), shape: rect, name: <tautology>),
       node((0,0.7), def-class("interface", "Conditional", none, ("+ compare()")),  shape: rect, name: <conditional>),
-      node((1,0.7), def-class("abstract", "EventHandler", none, none), shape: rect, name: <handler>),
+      node((1,0.7), def-class("abstract", "EventHandler", ("# Condition c", "#EventAction action"), none), shape: rect, name: <handler>),
       node((1,1.5), def-class("abstract", "EventEmitter", ("# Object actor", "# List<EventHandler> handler"), none), shape: rect, name: <emitter>),
       node((0.3,0), def-class("interface", "EventAction", none, none), shape: rect, name: <action>),
       node((1.7,0), def-class("interface", "EventBroker", none, ("getEmitter(): EventEmitter")), shape: rect, name: <broker>),
@@ -214,7 +214,7 @@ the software model.
 When emitter trigger events, all subscribed handler receive information about these events.
 Their associated condition then decides based on the custom data provided by the event if
 the action should run. By default, the condition is of type tautology which is always true
-and will regardless of event data run all actions.
+regardless of event data and will cause all actions to run.
 The abstract classes `EventEmitter` and `EventBroker` are to be implemented by classes
 that emit events such as levers that can be pulled. In this use case the lever
 provides conditions when the lever is pulled down, pushed up, pull down done and push up done.
@@ -223,7 +223,7 @@ dynamic and interwoven animation systems. It also allows animations to react to 
 by subscribing to its own emitter. Such cases shall be used with great care as this
 can lead to an infinite loop when actions trigger themselves continuously
 preventing the event loop from advancing any further. It should also be avoided to
-form too long of event-action chains, as these may stretch the frame time by
+form long event-action chains, as these may stretch the frame time by
 consuming significant processing time thus lagging out the event loop.
 Its vulnerability to overload and self triggering actions is a significant drawback of this system.
 A possible solution might be to dispatch actions asynchronously, although this does not protect from
@@ -248,12 +248,12 @@ first increment of an animation targeting a value. A "stopped" event is triggere
 the animation state has reached the target value and the advancement factor is one.
 An event may also be triggered at any increment of a given animation. Much more intricate
 animations require an overrun condition. This condition is true whenever the animation
-passed by a specific value. Useful when a pulled lever starts to pull down a second lever
+passes by a specific value. Useful when a pulled lever starts to pull down a second lever
 halfway through its animation. The overrun condition is checked each time an increment
 in the animation occurs. Every animation increment advances the state by a certain interval
 ranging from the previous animation state $overline(x)_0$ to the next $overline(x)_1$
 as specified by the transformation of the advancement factor by $delta t$.
-In case the overrun variable $h$ is inside this interval, then the condition is true,
+In case the overrun variable $h$ is inside this interval the condition is true
 as the animation has "stepped over" by the trigger value.
 The situation can be seen in @fig:overrun-true.
 
@@ -319,7 +319,7 @@ It should be noted that at current time there is no method in place avoiding inf
 animations subsequently update their own state based on change events from other animations.
 An animations state is to be considered volatile, and it may be mutated by events emitted by other animations
 before, during and after an increment. Due to the nature of the frame time increment $delta t$
-All described events may trigger at the same increment when the $x_t - x_c lt delta t dot s$ as in this
+all described events may trigger at the same increment when the $x_t - x_c lt delta t dot s$ as in this
 case the animation starts and stops with the same increments thus possibly triggering all events at once.
 
 === Synchronization attachments
@@ -334,6 +334,8 @@ Upon releasing from the synchronization all targets are cleared, and the animati
 In this situation its state may too be outside its boundary interval.
 However, when animating towards the next target the animation will automatically move
 back into its valid range of operation.
+
+#pagebreak()
 
 == Solving calculations
 
@@ -368,7 +370,7 @@ The steps used to generate the operation steps is shown below:
     spacing: 1em,
     node((0,0), fill: black, circle(fill: black, radius: 0.25em)),
     node((2,0), shape: rect, "Tokenize"),
-    node((4,0), "Shunting yard"),
+    node((4,0), "Parsing"),
     node((0,2), "Interpret"),
     node((2,2), "Generate"),
     node((4,2), "Squash"),
@@ -387,8 +389,7 @@ edits only a string of characters. Tokenization is performed by splitting the st
 using regular expressions and filtering out empty tokens. Each token is a string containing
 either an operator or an operand of which there are for now only positive integer numbers.
 The array of tokens preserves the order in which the tokens appear in the string.
-
-Sine infix notation does not translate well to calculator operations, the notation needs to be translated to
+Since infix notation does not translate well to calculator operations, the notation needs to be translated to
 the operations described in @table:actions. In the upcoming text these will also be referred to as instruction.
 The first step in producing these instructions is to compile the infix notation to @RPN otherwise known
 as postfix notation. In this notation the operands follow their operator. @eq:infix would look like the following
@@ -400,7 +401,8 @@ $
 
 Parenthesis vanish and only their effect on operator precedence is left behind.
 Converting to @RPN is done by applying the shunting yard algorithm (@appendix:shunting-yard)
-to the list of tokens. This algorithm works by pushing the operator tokens (including parenthesis)
+to the list of tokens @Norvell_1999.
+This algorithm works by pushing the operator tokens (including parenthesis)
 onto a separate temporary stack and pushing numbers to the output queue.
 Operators with higher precedence are moved from the stack to the output when an operator
 with lower precedence is found as token. This ensured that operators always follow their operands
@@ -458,8 +460,8 @@ The most intricate step is the interpreter that performs the following evaluatio
 any given operation: in case the first operator is a subtraction or addition, the first operand
 is loaded into the input register of the machine. Afterward, the first value is added onto the result register.
 Then the second operand is loaded onto the input register and added or subtracted depending on the operator onto
-the result register. In case the operator is not the first one to be processed, the first operand is assumed to already
-loaded into the result. Then the second operand is loaded into the input register and either added or subtracted from the result.
+the result register. In case the operator is not the first one to be processed, the first operand is assumed to already be
+loaded into the result. Then the second operand is loaded into the input register and is either added or subtracted from the result.
 Optionally before generating the instructions for the first operation all registers may be cleared.
 Not shown is the squash operation which reduces the resulting list of instructions by merging redundant operations together
 like clearing registers multiple times in a row. This step is more useful with more complex
@@ -484,7 +486,7 @@ Since the algorithm in pseudocode is a bit hard on the eye let's explore how
 we do it on the Brunsviga. For this purpose we image two factors:
 $a = 785$ and $b = 56$. Very impractical to compute the product with the first method.
 Summing $785$ $56$ times in a row takes quite some time.
-First find the minimum and maximum value of the two. Then split the smaller of
+First, find the minimum and maximum value of the two. Then split the smaller of
 the two into the coefficients used in composing the decimal representation:
 
 $
@@ -511,12 +513,7 @@ run more complex algorithms on the machine besides doing all steps manually.
 For this purpose a text editor for custom scripts is added as
 a secondary option to the tab panel where the calculation solver resides.
 All operations shown in table @table:actions have their equivalent
-interface function in the Typescript source:
-
-#figure(raw(lang: "typescript", read("res/ts-api.ts").trim()), caption: [
-    Stub of the Brunsviga 13 RK programmatic class interface.
-])
-
+interface function in the Typescript source @appendix:ts-stub.
 These are functions that allow direct interaction with the model, animations
 and its state. Notice the usage of the `async` keyword. This due to the fact,
 that these functions wait until the animation they trigger have completed.
@@ -524,7 +521,7 @@ Calling methods can decide whether to await them or not.
 Functions that retrieve a value from the register do not need to wait for anything
 since they trigger no animations or state change.
 
-=== Moonshine
+=== Integration
 
 The goal is now to abstract this interface with its asynchronous nature behind
 a scripting language that is, based on the authors' opinion, easier to read and
@@ -539,9 +536,11 @@ running Lua instance. #link("https://github.com/ceifa/wasmoon", "Wasmoon")
 #footnote("https://github.com/ceifa/wasmoon")
 is chosen as the binding for Typescript since it packages the Lua interpreter
 as precompiled @WASM making it much faster in execution than Lua interpreter
-written in Javascript. Beneficial is also the libraries feature to automatically
+written in JavaScript. Beneficial is also the libraries feature to automatically
 wrap Typescript classes and global functions in order to expose them directly
 to any Lua scripts. This comes in handy when accessing the Typescript interface.
+
+#pagebreak()
 
 === Lua abstraction
 

@@ -11,6 +11,9 @@ In order to achieve maximum accessibility and ease of use the simulation is to b
 run in a web based environment which enables all kinds of devices such as
 desktop computes, laptops and mobile devices to use their built-in capabilities
 to access the application through web browsers.
+Content of this chapter is focused on the technical description rather than
+the design. Coverage of the user interface design process and development
+are not considered to be in scope of this project.
 
 == Overall goals
 
@@ -249,6 +252,39 @@ of tools and frameworks described more in-depth in the following chapters:
   ],
 )
 
+== Organization
+
+Nearly as important as the technologies used is the applied project management.
+The source code of is hosted as GitHub and relies on the Git version control
+system. This allows controlled collaboration between multiple contributes
+during development. In order to enhance tracking of changes a
+specific development workflow is chosen based on Gitflow.
+The idea here is to have to most up-to-date version of the software on
+the main branch. Working tasks such as bug fixes, new features or any other
+are performed in their own separate branch, which on completion is merged into the
+main branch. Additionally, conventional commits shall be used to write commit messages.
+This strategy used a simple pattern to create readable and formal messages:
+
+#figure(
+  raw("<type>[optional scope]: <description>"),
+  caption: [Conventional commit message without body.])
+
+Each and every commit starts with a type. This type can be any of: `fix` (bug fix), `feat` (new feature),
+`refactor` (change in code but not in behavior) and many more. See specification for an
+exhaustive list @ConventionalCommits. A scope may be a software module worked on or general topic.
+The type is to be used not only in commit messages but also as initial path element for naming
+branches. For example, a new feature branch may be named like the following:
+`feat/add-jumping-animation`. Commit descriptions and branch names may only use the presence tense.
+Last but not least is the versioning scheme. Semantic versioning is chosen due to its
+good integration with conventional commits and wide adoption in the software world.
+Helpful automation in the repository is performed by GitHub actions such as `release-please`
+which is used to automate the generation of releases. It automatically generates
+changelogs and performs version increments from the history of commit messages all
+possible by using conventional commits.
+On release the current software is built by a custom action and the static files produced by vite
+are attached to the current release. The latest version is also deployed to a GitHub page hosted
+at: #link("https://brunsviga13rk.github.io/emulator/", "brunsviga13rk.github.io/emulator").
+
 == User interface
 
 The user interface is crafted with @MUI components with classical React
@@ -271,8 +307,6 @@ mutated through a sprocket wheel either way. On mobile devices the right side
 is to slide away giving of its screen real estate to the view of the model.
 Optionally these may be brought back into view by clicking a button in the title bar.
 
-== Software components
-
 == Event loop
 
 One of the most critical part of the application is the event loop.
@@ -286,6 +320,7 @@ fit its parent container since it does not do so automatically.
     diagram(
         node-stroke: 1pt + black,
         edge-stroke: 1pt + black,
+        spacing: 2.5em,
         node((1,0), "Engine", name: <engine>),
         node((3,0), "Renderer", name: <renderer>),
         node((4,0), "Brunsviga", name: <brunsviga>),
@@ -320,10 +355,18 @@ performance as consequence.
 
 == Rendering
 
+Rendering refers to the process of generating imagery from geometric meshes.
+It serves as the fundamental approach used to put the generated model to the screen.
+For the purpose of rendering in real time, achieving a frame time less than 16 milliseconds,
+@WebGL in Three.js relies on rasterization.
+Rasterization works by transforming the geometric shapes of a mesh, usually triangles,
+from their local space into clip space, where their vertices are represented in pixel coordinates
+and can directly be drawn by dropping the z-coordinate and using the $(x,y)$ coordinates.
+
 === Environment
 
-In order to add realistic illumination to the scene commonly environment maps
-find use. These are rectangular image texture of a 360° view of an environment
+In order to add realistic illumination to the scene environment maps
+find use commonly. These are rectangular image texture of a 360° view of an environment
 such a room or landscape stitched together from pictures taken from angles
 covering the entire surrounding sphere. The spherical texture data is then projected
 onto a flat image with equirectangular mapping similar (but not alike) how the surface of the
@@ -342,12 +385,12 @@ scattering. This process allows for detailed lightning with very little effort.
 @fig:material-showcase was rendered with this exact environment map to make sure
 the synthesized materials would match the materials later rendered in real time.
 Another special feature of environment map is their format. They are usually not
-encoded in @PNG or @JPEG but @HDR. This is special file format able to store much
+encoded in @PNG or @JPEG but @HDR. This special file format is able to store much
 higher resolution color data. Typically, @HDR has 8 bytes per color channel instead
 of 2 bytes like @PNG or @JPEG. Such high resolution in color depth allows representing
-much greater dynamic range of colors.
+much greater dynamic range of colors @OpenEXR. 
 
-#figure(image("res/hdri-dynamic-range-big-3089469445.jpg", width: 80%), caption: [Dynamic range of two pictures @HDRIAversis.]) <fig:dynamic-range>
+#figure(image("res/hdri-dynamic-range-big-3089469445.jpg", width: 70%), caption: [Dynamic range of two pictures @HDRIAversis.]) <fig:dynamic-range>
 
 @fig:dynamic-range shows the effect high dynamic range has on a picture.
 Storing high resolution color data allows much greater freedom in adjusting contrast
@@ -358,12 +401,88 @@ Due to this process @HDR environment maps are able to capture both dark shadows
 and bright light sources without clipping to black or white like lower
 resolution color formats do.
 
-=== Passes
+#pagebreak()
+
+=== Passes <sec:passes>
 
 Rendering is not as straight forward as drawing and coloring the polygons
 on the canvas. The raw rendered image makes it hard to know which parts
-can be interacted with.
+can be interacted with. For this purpose the Three library used for rendering
+supports post-processing filters which can be chained together to form
+multi pass rendering pipelines @Three_Postprocessing.
+At the first stage a `RenderPass` is used to draw the model with its surface
+shaders and environment lightning to a frame buffer. This step also
+stores some additional depth data used in the second step, where an outline
+pass draws a white border for a handpicked selection of objects which
+are decided upon whether the mouse cursor hovers over them or not.
+Several other improvements can be made at this stage too.
+The borders drawn by the outline pass have hard edges and appear blocky
+on slopes. A quick fix for this is to apply antialiasing at the very end of
+the rendering pipeline. For this purpose a @FXAA shader is run by a shader pass
+on the frame buffer previously written to by the outline pass.
+This small addition helps to reduce visual quirks with the final image.
+However, the @FXAA algorithm falls short in several cases where the machine
+itself produces hard edges with artifacts. Sometimes these do not get filtered
+properly by @FXAA leaving the viewer with a rather unpleasant image.
+Antialiasing of the model can be computed quite cheaply by swapping the `RenderPass`
+at the beginning with a special render pass performing @TAA.
+@TAA works by averaging samples of rendered image over the temporal domain, that is time.
+This results, much like multi sampling in smoother images over time.
+Images have only a small influence over time to prevent ghosting, that is seeing
+blurry version of objects that once were in view but have since moved onward.
 
 #figure(
-    grid(columns: (1fr, 1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%), image("res/Screenshot_20250415_000140.png", width: 95%)),
-    caption: [Picture (right), path trace (middle), web (right).])
+  [
+    #diagram(
+    node-stroke: 1pt + black,
+    edge-stroke: 1pt + black,
+    node-corner-radius: 0.5em,
+    spacing: 1em,
+    node((2,0), shape: rect, "Render"),
+    node((4,0), shape: rect, "TAA"),
+    node((0,2), "Outline"),
+    node((2,2), "FXAA"),
+    node((4,2), "Output"),
+    edge((2,0), (4,0), "->"),
+    edge((4,0), "r,d,llllll,d,r", "->"),
+    edge((2,2), (4,2), "->"),
+    edge((0,2), (2,2), "->")
+  )
+  #v(1em)
+  ], caption: [Sequence of render passes.])
+
+The output pass additionally transforms the linear color space rendered in to sRGB
+with tone mapping in order to produce accurate display output @Three_Postprocessing.
+
+#pagebreak()
+
+The final composed Brunsvgia model can be seen in @fig:output-comparison.
+On the left side is a picture taken of the physical machine. In the middle is the
+finalized digital model rendered with path tracing by Cycles in Blender.
+On the right side is the same model rendered in real time in @WebGL.
+The most similarity is between the path traced model and the real picture.
+This is due to the fact, that path tracing simulates actual rays of light by bouncing
+them around and approximating the rendering equation by quasi monte carlo methods.
+This procedure is computationally expensive and rendering at 1080p took about
+four minutes for 512 samples per pixel.
+
+#figure(
+    grid(columns: (1fr, 1fr, 1fr), image("res/machine.jpg", width: 100%), image("res/model-showcase.png", width: 95%), image("res/Screenshot_20250415_000140.png", width: 95%)),
+    caption: [Picture (right), path trace (middle), web (right).]) <fig:output-comparison>
+
+@WebGL renders its model at 60 frames per second, over 15000 times faster.
+This of course, has the drawback of significantly reducing visual quality.
+The most obvious lack is the absence of shadows or ambient occlusion
+from the real time render. A possible road to improvement would
+be to fake ambient occlusion by adding a screen space based approach
+in post-processing. Modern games often rely on ambient occlusion approximations.
+Screen space based approaches can even be taken to far as to simulate
+bounces of global illumination @SSDO.
+Several implementations of @SSAO are available to use, some of them built into
+Three.js itself. For unknown reasons these @SSAO filters seem to work mutually
+exclusive to the outline pass meaning a decision between outlines and @SSAO
+needs to be made. Due to time constraint no satisfying solution was found
+in time. Outlines are considered more important as they add more value to the
+user experience than @SSAO adds to visual quality.
+It remains to explore further possibilities or fixes for adding more advanced
+illumination techniques to the view.
