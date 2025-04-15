@@ -53,6 +53,8 @@
     bibliography: bibliography("refs.bib"),
     glossary: yaml("acros.yml"),
     abstract: include "abstract.typ",
+    confidentiality: false,
+    authorship: false,
   ),
   style: (
     header: (
