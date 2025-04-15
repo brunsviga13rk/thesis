@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/brunsviga13rk/thesis/compare/v0.2.1...v0.3.0) (2025-04-15)
+
+
+### Features
+
+* add abstract and thanks notice ([#21](https://github.com/brunsviga13rk/thesis/issues/21)) ([714385d](https://github.com/brunsviga13rk/thesis/commit/714385ddcbc1b54cd828e5de7774ba49b40838c1))
+* add chapter about texture baking ([#18](https://github.com/brunsviga13rk/thesis/issues/18)) ([4fa0774](https://github.com/brunsviga13rk/thesis/commit/4fa07749bdf0bf22c63b92188da3c047cf2b99c9))
+* write about machine structure ([#22](https://github.com/brunsviga13rk/thesis/issues/22)) ([456fa92](https://github.com/brunsviga13rk/thesis/commit/456fa92209a6db9ef459577b6d94ae3a5e27a52c))
+* write about software architecture ([#23](https://github.com/brunsviga13rk/thesis/issues/23)) ([0fa054f](https://github.com/brunsviga13rk/thesis/commit/0fa054fbc554264fe259570b6b8e05fbb0665bc5))
+
+
+### Bug Fixes
+
+* add coauthor notice ([53a86ca](https://github.com/brunsviga13rk/thesis/commit/53a86ca365d5184f99e5e7506f027773dd72f056))
+* add image compression ([#24](https://github.com/brunsviga13rk/thesis/issues/24)) ([53a86ca](https://github.com/brunsviga13rk/thesis/commit/53a86ca365d5184f99e5e7506f027773dd72f056))
+* layout of appendix ([53a86ca](https://github.com/brunsviga13rk/thesis/commit/53a86ca365d5184f99e5e7506f027773dd72f056))
+
 ## [0.2.1](https://github.com/brunsviga13rk/thesis/compare/v0.2.0...v0.2.1) (2025-03-21)
 
 
