@@ -74,3 +74,12 @@ webP:
 fBM:
     short: fBM
     long: Fractional Brownian motion
+RPN:
+    short: RPN
+    long: Reverse Polish Notation
+WASM:
+    short: WASM
+    long: Web Assembly
+HDR:
+    short: HDR
+    long: High Dynamic Range

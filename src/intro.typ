@@ -92,7 +92,7 @@ machine built using the patents bought from Königsberger as "Brunsviga".
 #cite(<Faulstich_1992>, supplement: "pp. 3-4")
 
 #figure(
-  caption: [Drawing of the "Brunsviga" from a journal of german engineers. #cite(<Faulstich_1992>, supplement: "p. 5")],
+  caption: ["Brunsviga" drawing from a journal of german engineers. #cite(<Faulstich_1992>, supplement: "p. 5")],
   image("res/brunsviga.png", width: 90mm),
 )
 

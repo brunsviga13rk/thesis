@@ -2,7 +2,7 @@
 
 #import "requirements.typ": *
 
-= Simulation <section:simulation>
+= Application <section:visualisation>
 
 A 3d model is of not much use without others being able to properly explore
 the geometry, pull the levers and check out its functionality. Ideally, it shall
@@ -49,7 +49,7 @@ allowing for copy and paste functionality.
 
 After outlining the overall goals of the web application necessary technologies
 and development strategies can be discussed.
-As stated in @section:simulation a soft goal of the project is easy accessibility
+As stated in @section:visualisation a soft goal of the project is easy accessibility
 of the application. Prominently web technologies have been proven to work well
 in this field as they typically do not require special dependencies natively
 installed other than a web browser with most operating systems having one
@@ -248,3 +248,122 @@ of tools and frameworks described more in-depth in the following chapters:
     to time constraints.
   ],
 )
+
+== User interface
+
+The user interface is crafted with @MUI components with classical React
+function components in a hierarchy. It is meant to be simple and easy to read,
+but also adapt to thinner mobile screens. The basic layout of the interface
+follows the golden ratio (blue) as can be seen in @fig:layout.
+
+#figure(image("res/user-interface.svg", width: 80%), caption:  [Scheme of user interface]) <fig:layout>
+
+The idea is to have a title bar at the top of the application showing the logo
+of the Brunsviga and giving additional information such as version number or
+providing links to the source code or a wiki page. Most space of the page
+will be given to the view showing the interactive machine since this is the
+highlight of project. On the right side two separate components are stacked
+over each other. Below is a tab page for various editors used to run different
+programs on the virtual machine. Above is a panel showing the current values
+of each of the machines three registers. The component displaying the value
+of the input register may even be editable since, the input register can be
+mutated through a sprocket wheel either way. On mobile devices the right side
+is to slide away giving of its screen real estate to the view of the model.
+Optionally these may be brought back into view by clicking a button in the title bar.
+
+== Software components
+
+== Event loop
+
+One of the most critical part of the application is the event loop.
+Implemented as anonymous function, the event loop (@fig:event-loop) is called by the renderer
+each time before a frame is rendered (about 60 times per second). Similar to
+game development this event loop processes the state of all things related
+to rendering. At first, the renderer checks whether it has to resize to
+fit its parent container since it does not do so automatically.
+
+#figure(
+    diagram(
+        node-stroke: 1pt + black,
+        edge-stroke: 1pt + black,
+        node((1,0), "Engine", name: <engine>),
+        node((3,0), "Renderer", name: <renderer>),
+        node((4,0), "Brunsviga", name: <brunsviga>),
+        node((5,0), "EventHandler", name: <handler>),
+        node((1,7), "Engine"),
+        node((3,7), "Renderer"),
+        node((4,7), "Brunsviga"),
+        node((5,7), "EventHandler"),
+        edge((1,0), "ddddddd", ".."),
+        edge((3,0), "ddddddd", ".."),
+        edge((4,0), "ddddddd", ".."),
+        edge((5,0), "ddddddd", ".."),
+        edge((1, 1), "rr", "-|>", label: "Initialize"),
+        edge((3, 2), "ll", "-|>", label: "Event loop"),
+        edge((1, 3), "rr", "-|>", label: "Resize", snap-to: (<engine>, <renderer>)),
+        edge((3, 3.25), "ll", "..>", snap-to: (<engine>, <renderer>)),
+        node(align(top + left, "loop"), inset: 0pt, extrude: 4pt, enclose: ((0.5,2.5), (5.5,6.5))),
+        edge((1, 4), "rrrr", "-|>", label: "Actions", snap-to: (<engine>, <brunsviga>)),
+        edge((4, 4.5), "r", "->", label: "Emit events", snap-to: (<handler>, <brunsviga>)),
+        edge((5, 5.5), "l", "..>", label: "Process events", snap-to: (<handler>, <brunsviga>)),
+        edge((4, 6), "lll", "..>", snap-to: (<engine>, <brunsviga>))),
+    caption: [Sequence diagram of the event loop.]) <fig:event-loop>
+
+After returning from the renderer the event loop triggers all actions of the Brunsviga.
+For now these only perform updates of the animation state which in turn
+asynchronously starts to process events. This works similar to a waterfall
+effect where a set of fixed actions can trigger a wave of subsequent procedures.
+For more information on how events work see @sec:events. For performance
+reasons it is important that the event loop runs as smoothly as possible
+as any delay in the loop will have stuttering frames and in turn poor rendering
+performance as consequence.
+
+== Rendering
+
+=== Environment
+
+In order to add realistic illumination to the scene commonly environment maps
+find use. These are rectangular image texture of a 360° view of an environment
+such a room or landscape stitched together from pictures taken from angles
+covering the entire surrounding sphere. The spherical texture data is then projected
+onto a flat image with equirectangular mapping similar (but not alike) how the surface of the
+earth is commonly projected on mercator maps.
+
+#figure(image("res/studio_smalljpg.jpg", width: 80%), caption: [Environment map of a studio room @StudiosmallZaal.]) <fig:environment-map>
+
+@fig:environment-map shows the environment used in the scene. This particular
+environment map is from a source hosting an entire library of environment maps
+used in the animation industry and licensed under
+#link("https://creativecommons.org/publicdomain/zero/1.0/", "CC0") @StudiosmallZaal.
+When the rendering engine computes the incoming light for a point on a surface
+all needed to be done is to sample the environment map in the normal direction,
+optionally blurring the environment in the same step in order approximate
+scattering. This process allows for detailed lightning with very little effort.
+@fig:material-showcase was rendered with this exact environment map to make sure
+the synthesized materials would match the materials later rendered in real time.
+Another special feature of environment map is their format. They are usually not
+encoded in @PNG or @JPEG but @HDR. This is special file format able to store much
+higher resolution color data. Typically, @HDR has 8 bytes per color channel instead
+of 2 bytes like @PNG or @JPEG. Such high resolution in color depth allows representing
+much greater dynamic range of colors.
+
+#figure(image("res/hdri-dynamic-range-big-3089469445.jpg", width: 80%), caption: [Dynamic range of two pictures @HDRIAversis.]) <fig:dynamic-range>
+
+@fig:dynamic-range shows the effect high dynamic range has on a picture.
+Storing high resolution color data allows much greater freedom in adjusting contrast
+and brightness. This high resolution color data is captured by shooting the same
+picture at different exposure levels (stop) and combining them later in post-processing
+by merging their color data scaled by the exposure they were shot at.
+Due to this process @HDR environment maps are able to capture both dark shadows
+and bright light sources without clipping to black or white like lower
+resolution color formats do.
+
+=== Passes
+
+Rendering is not as straight forward as drawing and coloring the polygons
+on the canvas. The raw rendered image makes it hard to know which parts
+can be interacted with.
+
+#figure(
+    grid(columns: (1fr, 1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%), image("res/Screenshot_20250415_000140.png", width: 95%)),
+    caption: [Picture (right), path trace (middle), web (right).])
