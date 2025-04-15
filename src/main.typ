@@ -48,7 +48,7 @@
       "Computer Graphics",
       "3D",
       "texturing",
-      "animation"
+      "animation",
     ),
     bibliography: bibliography("refs.bib"),
     glossary: yaml("acros.yml"),
