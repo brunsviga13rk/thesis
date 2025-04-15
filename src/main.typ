@@ -9,7 +9,7 @@
   region: "en", // region code
   // mark this thesis as draft
   // Adds preleminarry note page and watermark
-  draft: true,
+  draft: false,
   // information about author(s)
   university: (
     program: "Informationtechnology",
