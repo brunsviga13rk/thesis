@@ -10,16 +10,16 @@
 
 At the core of this entire project is the simulation of a real-world physical
 object. Mechanical machinery is best understood when viewed through animations
-showing each step of process. Multiplication on the Brunsviga for example is
+showing each step of the process. Multiplication on the Brunsviga for example is
 generally a multistep procedure. Having a model to virtually orbit around
 benefits understanding. For the purpose of rendering the calculator on a
 computer screen, a digital recreation of the calculating machine is required.
-This 3d model will be referred to as "digital twin" a term used in by the
+This model will be referred to as "digital twin" a term used in by the
 automation industry to monitor, test and verify various parts of factories
 such as assembly lines by estimating said factors through a virtual simulation.
 Although the use case diverges from those of the major
 industries, as this project does not center around any of the more commonly used
-goals of data analysis, cost estimation. Additionally, both physical and the digital
+goals such as data analysis or cost estimation. Additionally, both physical and the digital
 twins are not linked by sensor data or a network connection since the object of
 interest is a purely analog computing device. This digital twin is used entirely
 for educational purposes in order to deepen and preserve the understanding of the
@@ -28,7 +28,7 @@ history of calculators as they were used decades ago.
 == Reference data
 
 In order to accurately recreate the calculator details of the physical model
-are mandatory. This data will from here on now be referred to as reference data.
+are mandatory. This data will now from here on be referred to as reference data.
 At first glance there are two branches of reference data usable for modelling:
 measurements and pictures. Measurements provides length and angle values with
 a relative precision of millimeters allowing
@@ -45,8 +45,6 @@ precisions due to real world errors make it hard to describe complex non-convex
 shapes such as gears, springs or parts of the hull. In order to simplify
 both individual shapes and reduce the amount of measurements pictures can be
 used to visually trace lines and approximate proportions.
-See appendix for a table of measurements taken from the real world machine.
-// TODO: add table of measurements
 
 == Optimization of reference images
 
@@ -109,14 +107,14 @@ of the object that should ideally be occluded.
   caption: "Example of perspective correction for a lever handle.",
 ) <picture:perspective-correction>
 
-AS can be seen on the left side, this can be fixed by moving the face of the handle
-facing the camera face forward slightly down. This results in holes in the image
+As can be seen on the left side, this can be fixed by moving the face of the handle
+facing the camera slightly down. This results in holes in the image
 where the face occluded the metallic lever. These can be filled up by either
 manually copying and blending from known and symmetrical parts of the image or
 through the use "smart patch" tools commonly found in software like Photoshop,
 Krita or Gimp. While editing the reference images a combination of both tools
 were found to strike a good balance between high accuracy and quick editing.
-Using "smart patch" tools for areas with low discrepancy Gaussian-like noise
+Using "smart patch" tools for areas with low discrepancy gaussian-like noise
 not containing sharp edges is limiting the amount of manual copy and past work
 by good deal. Areas of high contrast of sharp edges however require manual
 intervention in most cases, as "smart patching" tools often rely on a combination
@@ -126,7 +124,7 @@ inconsistent patches.
 === Removal of defects
 
 The machine acquired for this project is multiple decades old and has been used
-fair while. This results in defects from regular touching, scratches or
+for a while. This results in defects from regular touching, scratches or
 in extreme cases by parts rubbing the paint from each other. Two examples
 of defects are shown in @picture:decal-correction on the left side.
 
@@ -139,7 +137,7 @@ In the top left image the continuous usage of one of the levers resulted in it b
 bent towards the hull of the machine, scratching its surface each time it is moved.
 In order to remove these defects from the image a method similar to the one
 used above can be used. By copying and blending parts of the image where an intact
-surface is still present, the defects can be over painted with negligible
+surface is still present, the defects can be painted over with negligible
 artifacts persisting. These artifacts mostly manifest themselves as very low
 frequency noise over the patched up defects. Some of the patched areas might
 appear blurry which is due to the blending operation taking place. This

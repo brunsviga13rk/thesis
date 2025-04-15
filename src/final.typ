@@ -32,7 +32,7 @@ and parsed by syntax is unimplemented and will cause errors.
 It was also planned to add function performing crude approximations for trigonometric
 functions such as sine or even a square root.
 
-Thanks to Prof. Dr. Bauer for his support during
+Special thanks to Prof. Dr. Bauer for his support during
 the project and also to two former owners of Brunsviga machines that where bought
 for live reference purposes. Without these this project would not have seen
 all the success it now has. Having physical machines to pull on was

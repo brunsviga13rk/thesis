@@ -365,8 +365,8 @@ and can directly be drawn by dropping the z-coordinate and using the $(x,y)$ coo
 
 === Environment
 
-In order to add realistic illumination to the scene commonly environment maps
-find use. These are rectangular image texture of a 360° view of an environment
+In order to add realistic illumination to the scene environment maps
+find use commonly. These are rectangular image texture of a 360° view of an environment
 such a room or landscape stitched together from pictures taken from angles
 covering the entire surrounding sphere. The spherical texture data is then projected
 onto a flat image with equirectangular mapping similar (but not alike) how the surface of the
@@ -385,7 +385,7 @@ scattering. This process allows for detailed lightning with very little effort.
 @fig:material-showcase was rendered with this exact environment map to make sure
 the synthesized materials would match the materials later rendered in real time.
 Another special feature of environment map is their format. They are usually not
-encoded in @PNG or @JPEG but @HDR. This is special file format able to store much
+encoded in @PNG or @JPEG but @HDR. This special file format is able to store much
 higher resolution color data. Typically, @HDR has 8 bytes per color channel instead
 of 2 bytes like @PNG or @JPEG. Such high resolution in color depth allows representing
 much greater dynamic range of colors @OpenEXR. 
@@ -412,7 +412,7 @@ supports post-processing filters which can be chained together to form
 multi pass rendering pipelines @Three_Postprocessing.
 At the first stage a `RenderPass` is used to draw the model with its surface
 shaders and environment lightning to a frame buffer. This step also
-saves some additional depth data used in the second step, where an outline
+stores some additional depth data used in the second step, where an outline
 pass draws a white border for a handpicked selection of objects which
 are decided upon whether the mouse cursor hovers over them or not.
 Several other improvements can be made at this stage too.
@@ -457,8 +457,8 @@ with tone mapping in order to produce accurate display output @Three_Postprocess
 #pagebreak()
 
 The final composed Brunsvgia model can be seen in @fig:output-comparison.
-On the left side is a picture taken of physical machine. In the middle is the
-finalized digital model rendered with path tracing in Cycles.
+On the left side is a picture taken of the physical machine. In the middle is the
+finalized digital model rendered with path tracing by Cycles in Blender.
 On the right side is the same model rendered in real time in @WebGL.
 The most similarity is between the path traced model and the real picture.
 This is due to the fact, that path tracing simulates actual rays of light by bouncing
@@ -471,7 +471,7 @@ four minutes for 512 samples per pixel.
     caption: [Picture (right), path trace (middle), web (right).]) <fig:output-comparison>
 
 @WebGL renders its model at 60 frames per second, over 15000 times faster.
-This of course, has the drawback significantly reducing visual quality.
+This of course, has the drawback of significantly reducing visual quality.
 The most obvious lack is the absence of shadows or ambient occlusion
 from the real time render. A possible road to improvement would
 be to fake ambient occlusion by adding a screen space based approach

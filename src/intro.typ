@@ -43,7 +43,7 @@ Due to cost of production Pascal's invention was never mass-produced.
 // Leibniz
 Inspired by Blaise's "Pascaline" the German mathematician Gottfried Wilhelm von
 Leibniz build his first calculator known today as "step reckoner".
-This calculator is known recognized as the first "true" four function
+This calculator is now recognized as the first "true" four function
 calculator capable of addition, subtraction, multiplication and division.
 Leibniz used drum-shaped gears in his machine which would prove to be very
 influential in the design of later mechanical calculators. Unfortunately Leibniz

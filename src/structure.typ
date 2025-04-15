@@ -18,7 +18,7 @@ wheels and the sled with the result register. Along the selection register are t
 
 As seen in @picture:brunsviga_front, the machine also possesses five levers and a handle for
 the selection register.
-Three of the Lever resets a separate part of the machine. The function of the left lever is
+Three of the lever reset a separate part of the machine. The function of the left lever is
 to reset the input register and, consequently, the selection register. The upper right lever
 serves to reset the count register, while the lower right lever is for resetting the result
 register. It is possible to completely reset the machine state using these levers. The two
@@ -40,7 +40,7 @@ It is not only used to set the individual digits, but also to start the computat
 ) <picture:sprocketwheel>
 
 As can be seen in @picture:sprocketwheel, the selection register has multiple components.
-On the right end the handle to perform the rotation, on the left side a cogwheel for
+On the right end is a handle used to perform the rotation, on the left side a cogwheel for
 transmission of the rotation to other components and in the middle ten individual
 sprocket wheels for the selection of the digits. It is mentioned, that the handle has a
 small tip on the other side and can be pulled. Each sprocket wheel contains eleven
@@ -54,7 +54,7 @@ left to change the count of the next digit accordingly. The sprocket wheel is al
 round but has an intentional curvature to press the overflow lever back down after
 its usage. On the left end of all sprocket wheels is a small button. This Button locks all
 sprocket wheels in place and needs to be pressed to change any digit. This mechanism is one
-of many to prevent the user to bring the machine in an unstable state and to disrupt the calculation.
+of many to prevent the user to bring the machine in an unstable state disrupting the calculation.
 Each handle has teeth and functions as a gear to rotate each digit in the input register.
 
 == Count and Result register
@@ -76,13 +76,13 @@ prevent an overflow and sometimes an underflow is especially desired, a bell is 
 in the back of the Brunsviga to signal these occurrences.
 
 When the sled is moved to higher states, it is like the selection register is rotated magnitudes
-higher than normal. Therefore, the sled specify which wheel on the count register is rotated.
+higher than normal. Therefore, the sled specifies which wheel on the count register is rotated.
 This mechanism is achieved via a lever that connects the sled to the count mechanism of the count
-register. On the Count mechanism is also a red indicator for the specified wheel.
+register. The Count mechanism also has a red indicator for the specified wheel.
 
 == States of the Brunsviga
 
-As mentioned in the previous chapter, the Brunsviga has several mechanisms in place to
+As mentioned in the previous section, the Brunsviga has several mechanisms in place to
 prevent incorrect operation. All of these mechanisms prevent changes while the rotation
 of the selection register or prevent the rotation while other components change. Therefore,
 the Machine can be described in two discrete states. The change from one state to the other
@@ -90,8 +90,8 @@ is fully controlled with the tip of the handle of the selection register. In the
 state It presses on a metal bar, which connects different mechanisms to enable certain functions.
 This pressed state of the metal bar is passed on different lever and components. When pressed
 it mainly enables the sprocket wheels on the selection register over the small button on the
-side of the wheels and locks the register in place. On this state the sled can be moved, and
-all registers can be reset. It should be noted that all levers for reset lock the rod in place
+side of the wheels and locks the register in place. In this state the sled can be moved, and
+all registers can be reset. It should be noted that all levers able to reset a register lock the rod in place
 so that the state can not be changed while resetting. When the State changes, most mechanisms
-are locked with the metal bar. The Sled and the sprocket wheels are locked in Place.
-All reset lever are physical blocked to prevent a reset while rotating the selection register.
+are locked with the metal bar. The Sled and the sprocket wheels are locked in place.
+All reset levers are physically blocked to prevent a reset while rotating the selection register.
