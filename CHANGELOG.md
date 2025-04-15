@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/brunsviga13rk/thesis/compare/v0.3.0...v0.3.1) (2025-04-15)
+
+
+### Bug Fixes
+
+* add animation keyword ([#27](https://github.com/brunsviga13rk/thesis/issues/27)) ([5dd92eb](https://github.com/brunsviga13rk/thesis/commit/5dd92eb548aa1d983d6b379ebe08eafa48d4343b))
+
 ## [0.3.0](https://github.com/brunsviga13rk/thesis/compare/v0.2.1...v0.3.0) (2025-04-15)
 
 
