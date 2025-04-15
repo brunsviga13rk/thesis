@@ -10,21 +10,10 @@ algorithms used by different raster file formats.
     caption: [Shell script used to generate data for compressed images.]
 )
 
-== Operator precedence <table:precedence>
-
-#figure(
-  table(columns: 2, table.header([Operator], [Precedence]),
-  [+], [1],
-  [-], [1],
-  [\*], [2],
-  [/], [2],
-  [(], [3],
-  [)], [3]), caption: [Operator precedence as used in the simulation.]
-)
-
 == Shunting yard algorithm <appendix:shunting-yard>
 
 #figure(
+  text(size: 9pt,
   pseudocode-list[
   + *for* all tokens *do*
     + *if* token is number *do*
@@ -69,10 +58,16 @@ algorithms used by different raster file formats.
   + *while* token on operator stack *do*
     + pop operator from the operator stack onto the output queue
   + *end*
-], caption: [Shunting yard algorithm.]
+]), caption: [Shunting yard algorithm as used in the solver.]
 )
 
+#pagebreak()
+
 == Long multiplication <fig:long-mult>
+
+Formal alogrithm of the long multiplication algorithm written in pseudo code.
+A similar implementation in Typescript can be found in the simulation for
+when generating instructions for multiplication.
 
 #figure(
   pseudocode-list[
@@ -90,11 +85,36 @@ algorithms used by different raster file formats.
       + *end*
   ], caption: [Long multiplication.])
 
+
+== Operator precedence <table:precedence>
+
+Table showing the operator precedence used by the shunting yard parser.
+
+#figure(
+  table(columns: 2, table.header([Operator], [Precedence]),
+  [+], [1],
+  [-], [1],
+  [\*], [2],
+  [/], [2],
+  [(], [3],
+  [)], [3]), caption: [Operator precedence as used in the simulation.]
+)
+
+#pagebreak()
+
+== Example Lua script
+
+Template Lua script loaded initially by the Lua editor to give 
+useres a basic working example.
+
 #figure(raw(lang: "lua", read("res/example.lua").trim()), caption: [
     Template program for the Lua editor.
 ]) <fig:lua-template>
 
 == Typescript interface stub <appendix:ts-stub>
+
+Stub of the Brunsviga interface implemented in Typescript. Serves as the abstraction
+for animations of the digital machine.
 
 #figure(raw(lang: "typescript", read("res/ts-api.ts").trim()), caption: [
     Stub of the Brunsviga 13 RK programmatic class interface.
