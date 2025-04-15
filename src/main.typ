@@ -26,6 +26,9 @@
       matriculation-number: 1191225,
     ),
   ),
+  coauthors: (
+    "Felix L. Müller"
+  ),
   // information about thesis
   thesis: (
     title: "Emulation of the decadic calculating machine Brunsviga 13 RK",
