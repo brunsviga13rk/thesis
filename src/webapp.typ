@@ -467,7 +467,7 @@ This procedure is computationally expensive and rendering at 1080p took about
 four minutes for 512 samples per pixel.
 
 #figure(
-    grid(columns: (1fr, 1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%), image("res/Screenshot_20250415_000140.png", width: 95%)),
+    grid(columns: (1fr, 1fr, 1fr), image("res/machine.jpg", width: 100%), image("res/model-showcase.png", width: 95%), image("res/Screenshot_20250415_000140.png", width: 95%)),
     caption: [Picture (right), path trace (middle), web (right).]) <fig:output-comparison>
 
 @WebGL renders its model at 60 frames per second, over 15000 times faster.

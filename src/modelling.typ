@@ -608,7 +608,7 @@ indicator painted in orange (hardly visible in @fig:estimated-reflectance).
 
 #figure(
     box(width: 100%)[
-        #image("res/machine.png", width: 50%)
+        #image("res/machine.jpg", width: 50%)
         #place(top + left)[
             #grid(columns: 2,
                   align: left + horizon,
@@ -691,7 +691,7 @@ on the material being either a dielectric or not. In total a material count of f
 the model. Example renders of the material can found in figure @fig:material-showcase.
 
 #figure(
-    image("res/material-showcase.png", width: 85%),
+    image("res/material-showcase.jpg", width: 85%),
     caption: [Synthesized materials rendered with Cycles.]) <fig:material-showcase>
 
 The six major materials have been applied to a spherical mesh and rendered with path tracing in the
@@ -702,7 +702,7 @@ For the purpose of determining the quality of synthesized materials and modelled
 between a reference image and computer generated image of the digital recreation can be seen in @fig:arrangement.
 
 #figure(
-    grid(columns: (1fr, 1fr), image("res/machine.png", width: 100%), image("res/model-showcase.png", width: 95%)),
+    grid(columns: (1fr, 1fr), image("res/machine.jpg", width: 100%), image("res/model-showcase.png", width: 95%)),
     caption: [Picture (right) and computer generated model (left).]) <fig:arrangement>
 
 The left side depicts a picture taken of a physical machine. On the right side is the path traced digital recreation

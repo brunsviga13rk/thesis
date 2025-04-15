@@ -35,7 +35,7 @@ The selection register is the most important component of the Brunsviga.
 It is not only used to set the individual digits, but also to start the computation with the rotation of the handle.
 
 #figure(
-  image("res/sprcketwheel.png", width: 65%),
+  image("res/sprcketwheel.jpg", width: 65%),
   caption: "Selection register removed from the machine.",
 ) <picture:sprocketwheel>
 
