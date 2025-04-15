@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/brunsviga13rk/thesis/compare/v0.3.1...v0.3.2) (2025-04-15)
+
+
+### Bug Fixes
+
+* remove statement pages ([#29](https://github.com/brunsviga13rk/thesis/issues/29)) ([c856467](https://github.com/brunsviga13rk/thesis/commit/c8564671e9745ecf9f97b3e28a213c12a2dd33fd))
+
 ## [0.3.1](https://github.com/brunsviga13rk/thesis/compare/v0.3.0...v0.3.1) (2025-04-15)
 
 
